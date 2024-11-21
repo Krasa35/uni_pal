@@ -1,0 +1,3 @@
+[submodule ".github/Company_data"]
+	path = .github/Company_data
+	url = git@github.com:Krasa35/Company_data.git

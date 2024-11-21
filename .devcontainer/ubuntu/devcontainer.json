@@ -1,0 +1,71 @@
+{
+    "name": "uni_pal",
+    "privileged": true,
+    "remoteUser": "ros2",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "args": {
+            "USERNAME": "ros2"
+        }
+    },
+    "workspaceFolder": "/home/ws",
+    "customizations": {
+        "vscode": {
+            "extensions":[
+                "ms-vscode.cpptools",
+                "ms-vscode.cpptools-themes",
+                "twxs.cmake",
+                "ms-iot.vscode-ros",
+                "ms-python.python",
+                "ms-vscode.cpptools-extension-pack",
+                // visual
+                "saeris.markdown-github-alerts",
+                "bierner.markdown-preview-github-styles"
+            ]
+        }
+    },
+    "mounts": [
+        // SYSTEM - DISPLAY, DOCKER, CERTS & SETTINGS
+        // "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
+        // "source=/dev/dri,target=/dev/dri,type=bind,consistency=cached",
+        // "source=${localWorkspaceFolder}/.github/Company_data/zscaler.crt,target=/usr/local/share/ca-certificates/zscaler.crt,type=bind",
+        // "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
+        // "source=/usr/bin/docker,target=/usr/bin/docker,type=bind",
+        // "source=${localWorkspaceFolder}/.vscode/c_cpp_properties.json,target=/home/ws/.vscode/c_cpp_properties.json,type=bind",
+        // "source=/run/user/1000/wayland-0,target=/tmp/wayland-0,type=bind,consistency=cached",
+        // CACHE
+        // "source=${localWorkspaceFolder}/_cache/build,target=/home/ws/build,type=bind",
+        // "source=${localWorkspaceFolder}/_cache/install,target=/home/ws/install,type=bind",
+        // "source=${localWorkspaceFolder}/_cache/log,target=/home/ws/log,type=bind",
+        //  RESOURCES AND SOURCE CODE
+        // "source=${localWorkspaceFolder}/.github,target=/home/ws/.github,type=bind",
+        // "source=${localWorkspaceFolder}/uni_pal_misc_lib,target=/home/ws/src/uni_pal_misc_lib,type=bind",
+        // "source=${localWorkspaceFolder}/uni_pal_msgs,target=/home/ws/src/uni_pal_msgs,type=bind",
+        // "source=${localWorkspaceFolder}/uni_pal_description,target=/home/ws/src/uni_pal_description,type=bind",
+        // "source=${localWorkspaceFolder}/uni_pal_interface_templates,target=/home/ws/src/uni_pal_interface_templates,type=bind",
+        // "source=${localWorkspaceFolder}/uni_pal,target=/home/ws/src/uni_pal,type=bind",
+        // "source=${localWorkspaceFolder}/README.md,target=/home/ws/README.md,type=bind"
+        ],
+    "containerEnv": {
+        "DISPLAY": "unix:1",
+        "ROS_AUTOMATIC_DISCOVERY_RANGE": "LOCALHOST",
+        "ROS_DOMAIN_ID": "0",
+        "NODE_EXTRA_CA_CERTS": "/home/ws/.github/Company_data/zscaler.crt"
+    },
+    "runArgs": [
+        "--net=host",
+        "--gpus=all",
+        "--runtime=nvidia",
+        "-e",
+        // "NVIDIA_DRIVER_CAPABILITIES=all",
+        "DISPLAY=:1",
+        "--name",
+        "uni_pal"
+        //"DISPLAY=${env:DISPLAY}"
+        // "-v",
+        // "/var/run/docker.sock:/var/run/docker.sock ..."
+    ]
+    // "postCreateCommand": "bash /home/ws/.github/scripts/setup_workspace.sh && bash /home/ws/.github/scripts/start_dockers.sh && bash /home/ws/.github/scripts/setup_ros2.sh"
+    // "hostRequirements": {"gpu":true}
+    //export DISPLAY=$(ip route list default | awk '{print $3}'):0
+}
