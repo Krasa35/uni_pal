@@ -1,0 +1,9 @@
+repositories:
+  mtc:
+    type: git
+    url: https://github.com/moveit/moveit_task_constructor.git
+    version: humble
+  py_binding_tools:
+    type: git
+    url: https://github.com/moveit/py_binding_tools.git
+    version: ros2
