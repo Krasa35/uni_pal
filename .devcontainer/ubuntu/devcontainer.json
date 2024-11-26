@@ -8,7 +8,7 @@
             "USERNAME": "ros2-dev"
         }
     },
-    "workspaceFolder": "/home/ros2-dev/ws",
+    "workspaceFolder": "/home/ws",
     "customizations": {
         "vscode": {
             "extensions":[
@@ -39,20 +39,19 @@
         // "--runtime=nvidia",
         // "NVIDIA_DRIVER_CAPABILITIES=all",
     ],
-    "postCreateCommand": "",//"bash /home/ws/.github/scripts/setup_workspace.sh && bash /home/ws/.github/scripts/start_dockers.sh && bash /home/ws/.github/scripts/setup_ros2.sh"
+    "postCreateCommand": "bash .github/scripts/01_configWorkspace.sh && bash .github/scripts/02_configMTC.sh",//"bash /home/ws/.github/scripts/setup_workspace.sh && bash /home/ws/.github/scripts/start_dockers.sh && bash /home/ws/.github/scripts/setup_ros2.sh"
     "mounts": [
         "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
         "source=/dev/dri,target=/dev/dri,type=bind,consistency=cached",
         "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
         "source=/usr/bin/docker,target=/usr/bin/docker,type=bind",
-        "source=${localWorkspaceFolder}/.github/.vscode,target=/home/ros2-dev/ws/.vscode,type=bind",
-        "source=${localWorkspaceFolder}/.github/Company_data/zscaler.crt,target=/usr/local/share/ca-certificates/zscaler.crt,type=bind",
-        "source=${localWorkspaceFolder}/_cache/build,target=/home/ros2-dev/ws/build,type=bind",
-        "source=${localWorkspaceFolder}/_cache/install,target=/home/ros2-dev/ws/install,type=bind",
-        "source=${localWorkspaceFolder}/_cache/log,target=/home/ros2-dev/ws/log,type=bind",
-        "source=${localWorkspaceFolder}/.github,target=/home/ros2-dev/ws/.github,type=bind",
-        "source=${localWorkspaceFolder}/uni_pal,target=/home/ros2-dev/ws/src/uni_pal,type=bind",
-        "source=${localWorkspaceFolder}/README.md,target=/home/ros2-dev/ws/README.md,type=bind"
+        "source=${localWorkspaceFolder}/.github/.vscode,target=/home/ws/.vscode,type=bind",
+        "source=${localWorkspaceFolder}/_cache/build,target=/home/ws/build,type=bind",
+        "source=${localWorkspaceFolder}/_cache/install,target=/home/ws/install,type=bind",
+        "source=${localWorkspaceFolder}/_cache/log,target=/home/ws/log,type=bind",
+        "source=${localWorkspaceFolder}/.github,target=/home/ws/.github,type=bind",
+        "source=${localWorkspaceFolder}/uni_pal,target=/home/ws/src/uni_pal,type=bind",
+        "source=${localWorkspaceFolder}/README.md,target=/home/ws/README.md,type=bind"
         // "source=/run/user/1000/wayland-0,target=/tmp/wayland-0,type=bind,consistency=cached",
         // "source=${localWorkspaceFolder}/uni_pal_misc_lib,target=/home/ros2-dev/ws/src/uni_pal_misc_lib,type=bind",
         // "source=${localWorkspaceFolder}/uni_pal_msgs,target=/home/ros2-dev/ws/src/uni_pal_msgs,type=bind",

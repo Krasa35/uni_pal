@@ -1,1 +1,4 @@
-_cache
+_cache/*
+!_cache/build/.gitkeep
+!_cache/install/.gitkeep
+!_cache/log/.gitkeep
