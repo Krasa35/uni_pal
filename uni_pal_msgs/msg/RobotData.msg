@@ -1,0 +1,9 @@
+float64 max_reach
+float64 gripper_width
+float64 gripper_length
+float64 gripper_height
+float64 gripper_offset
+string[] joint_names
+string arm_group_name
+string flange_name
+string[] planning_groups

@@ -1,0 +1,14 @@
+geometry_msgs/Pose pose_in_frame
+geometry_msgs/Pose pose_in_base
+geometry_msgs/Pose pose_in_world
+uni_pal_msgs/RobotRPY rpy_in_frame
+uni_pal_msgs/RobotRPY rpy_in_base
+uni_pal_msgs/RobotRPY rpy_in_world
+float64[] joint_state
+float64 distance_to_frame
+float64 distance_to_base
+geometry_msgs/Vector3 vec_to_base
+geometry_msgs/PoseStamped current_tcp_pose
+string current_tcp_name
+geometry_msgs/PoseStamped current_frame_pose
+string current_frame_name

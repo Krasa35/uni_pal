@@ -1,0 +1,4 @@
+uni_pal_msgs/RobotPose actual_pose
+uni_pal_msgs/RobotState state
+uni_pal_msgs/RobotDigital digital
+uni_pal_msgs/RobotAnalog analog

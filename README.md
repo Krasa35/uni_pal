@@ -9,8 +9,10 @@ for every robot with just one source code - Thesis topic in Polish:
 > [!WARNING]
 > Repository is fully customizable - branch is always developed for native Linux system but inside `.devcontainer` you can find other possibilites to open the repository - all **should** work.
 
+
 <details>
 <summary><b> Linux </b></summary>
+
 </details>
 
 <details>
@@ -21,4 +23,7 @@ for every robot with just one source code - Thesis topic in Polish:
 <summary><b> WSL + Docker</b></summary>
 </details>
 
-
+After building devcontainer below steps need to be performed for every installation.
+```bash
+colcon build
+```

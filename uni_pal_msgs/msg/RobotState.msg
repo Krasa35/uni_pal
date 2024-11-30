@@ -1,0 +1,12 @@
+bool over_pp
+bool over_right_pallet
+bool over_left_pallet
+bool over_base
+bool hyper_extension
+bool hyper_flexion
+bool hyper_roll
+bool forearm_gripper_warn
+bool below_base
+bool high_above_base
+bool product_on_gripper
+bool collective

@@ -51,12 +51,12 @@
         "source=${localWorkspaceFolder}/_cache/log,target=/home/ws/log,type=bind",
         "source=${localWorkspaceFolder}/.github,target=/home/ws/.github,type=bind",
         "source=${localWorkspaceFolder}/uni_pal,target=/home/ws/src/uni_pal,type=bind",
+        "source=${localWorkspaceFolder}/uni_pal_msgs,target=/home/ws/src/uni_pal_msgs,type=bind",
+        "source=${localWorkspaceFolder}/uni_pal_misc_lib,target=/home/ws/src/uni_pal_misc_lib,type=bind",
+        "source=${localWorkspaceFolder}/uni_pal_description,target=/home/ws/src/uni_pal_description,type=bind",
+        "source=${localWorkspaceFolder}/uni_pal_generator,target=/home/ws/src/uni_pal_generator,type=bind",
         "source=${localWorkspaceFolder}/README.md,target=/home/ws/README.md,type=bind"
         // "source=/run/user/1000/wayland-0,target=/tmp/wayland-0,type=bind,consistency=cached",
-        // "source=${localWorkspaceFolder}/uni_pal_misc_lib,target=/home/ros2-dev/ws/src/uni_pal_misc_lib,type=bind",
-        // "source=${localWorkspaceFolder}/uni_pal_msgs,target=/home/ros2-dev/ws/src/uni_pal_msgs,type=bind",
-        // "source=${localWorkspaceFolder}/uni_pal_description,target=/home/ros2-dev/ws/src/uni_pal_description,type=bind",
-        // "source=${localWorkspaceFolder}/uni_pal_interface_templates,target=/home/ros2-dev/ws/src/uni_pal_interface_templates,type=bind",
         ]
     // "hostRequirements": {"gpu":true}
     //export DISPLAY=$(ip route list default | awk '{print $3}'):0

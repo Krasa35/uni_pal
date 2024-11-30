@@ -1,0 +1,7 @@
+# Request
+int32 layer_no
+int32 box_no
+string pallet_side
+---
+# Result
+geometry_msgs/PoseStamped[] trajectory
