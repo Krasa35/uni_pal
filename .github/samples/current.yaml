@@ -13,11 +13,16 @@ scene:
     orientation: "0.0 0.0 0.0"
     parent: "world"
   pallet_right:
-    size: "0.8 1.2 0.144"
+    # size: "0.8 1.2 0.144"
     mesh: "/home/ws/.github/Company_data/RC10_meshes/Paleta_small.stl"
     position: "0.79 -0.1 0.0"
     orientation: "0.0 0.0 0.0"
     parent: "world"
+  station:
+    size: "0.5 0.5 1.2"
+    position: "0.0 0.0 0.0"
+    orientation: "0.0 0.0 0.0"
+    parent: "pallet_left"
   # extention: 0.49
   # extention: 0.49
   # extention: 0.49

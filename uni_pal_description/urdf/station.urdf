@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<robot name="pallet_right">
-  <link name="pallet_right">
+<robot name="station">
+  <link name="station">
       <visual>
         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
         <geometry>
-        <mesh filename="file://$(find uni_pal_description)/meshes/Paleta_small.stl"/>
+        <box size="0.5 0.5 1.2"/>
         </geometry>
         <material name="Gray">
         <color rgba="0.5 0.5 0.5 1.0"/>
@@ -13,13 +13,13 @@
       <collision>
         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
         <geometry>
-        <mesh filename="file://$(find uni_pal_description)/meshes/Paleta_small.stl"/>
+        <box size="0.5 0.5 1.2"/>
         </geometry>
       </collision>
   </link>
-  <joint name="world - pallet_right" type="fixed">
-    <origin xyz="0.79 -0.1 0.0" rpy="0.0 0.0 0.0" />
-    <parent link="world" />
-    <child link="pallet_right" />
+  <joint name="pallet_left - station" type="fixed">
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+    <parent link="pallet_left" />
+    <child link="station" />
   </joint>
 </robot>

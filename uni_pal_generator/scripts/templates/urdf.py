@@ -1,33 +1,10 @@
 import os
+import shutil
 from jinja2 import Template
 from templates import robot_macros
 
-# element_template = """<?xml version="1.0"?>
-# <robot name="{{ name }}">
-#   <link name="world" />
-#   <link name="{{ name }}">
-#       <visual>
-#         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-#         <geometry>
-#         <mesh filename="{{ mesh }}"/>
-#         </geometry>
-#           <material name="Gray">
-#           <color rgba="0.5 0.5 0.5 1.0"/>
-#           </material>
-#       </visual>
-#       <collision>
-#         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-#         <geometry>
-#         <mesh filename="{{ mesh }}"/>
-#         </geometry>
-#       </collision>
-#   </link>
-#   <joint name="{{ parent }} - {{ name }}" type="fixed">
-#     <origin xyz="{{ position }}" rpy="{{ orientation }}" />
-#     <parent link="{{ parent }}" />
-#     <child link="{{ name }}" />
-#   </joint>
-# </robot>"""
+box_template = """<box size="{{ size }}"/>"""
+mesh_template = """<mesh filename="file://$(find uni_pal_description)/meshes/{{ mesh }}"/>"""
 
 element_template = """<?xml version="1.0"?>
 <robot name="{{ name }}">
@@ -35,16 +12,16 @@ element_template = """<?xml version="1.0"?>
       <visual>
         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
         <geometry>
-        <box size="{{ size }}"/>
+        {{ geometry }}
         </geometry>
-          <material name="Gray">
-          <color rgba="0.5 0.5 0.5 1.0"/>
-          </material>
+        <material name="Gray">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+        </material>
       </visual>
       <collision>
         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
         <geometry>
-        <box size="{{ size }}"/>
+        {{ geometry }}
         </geometry>
       </collision>
   </link>
@@ -90,18 +67,29 @@ def append_element(file_path, element_path):
   )
   insert_content(file_path, append_content)
 
-def generate_before_robot_scene_elements(urdf_path, scene, output_dir):
+def generate_before_robot_scene_elements(urdf_path, scene, description_dir):
     template = Template(element_template)
     for name, properties in scene.items():
+        if "mesh" in properties:
+           mesh_path = os.path.join(description_dir, 'meshes', os.path.basename(properties["mesh"]))
+           shutil.copy(properties["mesh"], mesh_path)
+           geometry_template = Template(mesh_template)
+           geometry_ = geometry_template.render(
+                mesh=os.path.basename(properties["mesh"])
+           )
+        elif "size" in properties:
+           geometry_template = Template(box_template)
+           geometry_ = geometry_template.render(
+              size=properties["size"]
+           )
         element_content = template.render(
             name=name,
             position=properties['position'],
             orientation=properties['orientation'],
-            # mesh=properties['mesh'],
-            size=properties['size'],
+            geometry=geometry_,
             parent=properties['parent']
         )
-        element_file_path = os.path.join(output_dir, f"{name}.urdf")
+        element_file_path = os.path.join(description_dir, 'urdf', f"{name}.urdf")
         element_find_path = os.path.join("$(find uni_pal_description)", "urdf", f"{name}.urdf")
         with open(element_file_path, 'w') as element_file:
             element_file.write(element_content)
