@@ -15,10 +15,14 @@ scene = config['scene']
 ######################################################
 
 uni_pal_description_dir = "/home/ws/src/uni_pal_description"
-output_file_path = os.path.join(uni_pal_description_dir, 'urdf', 'robot.urdf.xacro')
+urdf_dir = os.path.join(uni_pal_description_dir, 'urdf')
+ignore_delete_list_file = os.path.join(urdf_dir, '.ignore')
+output_file_path = os.path.join(urdf_dir, 'robot.urdf.xacro')
 
+
+urdf.delete_old_files(urdf_dir, ignore_delete_list_file)
 urdf.start_urdf(output_file_path, "ur10")
 urdf.generate_before_robot_scene_elements(output_file_path, scene, uni_pal_description_dir)
-urdf.append_robot(output_file_path, robot['type'])
+urdf.append_robot(output_file_path, robot)
 
 print(f"URDF file generated at {output_file_path}")

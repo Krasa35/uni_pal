@@ -1,0 +1,30 @@
+system: # OPTIONS
+  username: ros2-dev
+  simulation: true
+robot:
+  type: universal_robots # universal_robots / techman_robots
+  model: ur10
+  ip: 192.168.56.101
+  parent: "station"
+  origin_xyz: "0.075 0.0 0.71"
+  origin_rpy: "0.0 0.0 0.0"
+scene:
+  pallet_left: # EUPALLET
+    size: "0.784 0.984 1.180" # "0.8/1.02 1.2/1.22 0.144/0.122" US to EUR PALLET
+    mesh: "/home/ws/.github/Company_data/RC10_meshes/Paleta_small.stl"
+    position: "-1.089 -0.65 0.0" # position: "-0.79 -0.1 0.0" - "size/2" for US, compute for EU
+    orientation: "0.0 0.0 0.0"
+    origin_xyz: "0.4 0.6 0.0"
+    parent: "world"
+  pallet_right: # EUPALLET
+    size: "0.784 0.984 1.180" # "0.8/1.02 1.2/1.22 0.144/0.122" US to EUR PALLET
+    mesh: "/home/ws/.github/Company_data/RC10_meshes/Paleta_small.stl"
+    position: "0.289 -0.65 0.0" # position: "-0.79 -0.1 0.0" - "size/2" for US, compute for EU
+    orientation: "0.0 0.0 0.0"
+    origin_xyz: "0.4 0.6 0.0"
+    parent: "world"
+  station:
+    mesh: "/home/ws/.github/Company_data/RC10_meshes/RC10_TG_CZ_NESTLE/base.stl"
+    position: "0.0 0.0 0.0"
+    orientation: "0.0 0.0 -1.57"
+    parent: "world"

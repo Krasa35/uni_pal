@@ -63,7 +63,7 @@ universal_robots = {
       <xacro:ur_robot
         name="$(arg name)"
         tf_prefix="$(arg tf_prefix)"
-        parent="world"
+        parent="{{ parent }}"
         joint_limits_parameters_file="$(arg joint_limit_params)"
         kinematics_parameters_file="$(arg kinematics_params)"
         physical_parameters_file="$(arg physical_params)"
@@ -97,7 +97,7 @@ universal_robots = {
         script_sender_port="$(arg script_sender_port)"
         trajectory_port="$(arg trajectory_port)"
         >
-        <origin xyz="0 0 0" rpy="0 0 0" />          <!-- position robot in the world -->
+        <origin xyz="{{ origin_xyz }}" rpy="{{ origin_rpy }}" />          <!-- position robot in the world -->
       </xacro:ur_robot>
 """
 }

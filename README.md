@@ -10,33 +10,9 @@ for every robot with just one source code - Thesis topic in Polish:
 > Repository is fully customizable - branch is always developed for native Linux system but inside `.devcontainer` you can find other possibilites to open the repository - all **should** work.
 
 ##  CONFIG.YAML
--   system:
-    |  |   |  |
-    | :------  | :------: | :------: |
-    | username | **STRING**     | |
-    | simulation | **BOOL**      | true or false |
--   robot:
-    |  |   |  |
-    | :------  | :------: | :------: |
-    | type | **STRING**     | "universal_robots" or "techman_robots" |
--   scene:
-    -   element
-
-        required
-        |  |   |  |
-        | :------  | :------: | :------: |
-        | position | **STRING**     | "\<x> \<y> \<z>" e.g. "0.5 0.5 1.2" in meters|
-        | orientation | **STRING**      | "\<roll> \<pitch> \<yaw>" e.g. "0.5 0.5 1.2" in radians|
-        | parent | **STRING**      | link name |
-
-        optional, but required:
-
-        *string* or *mesh*
-        |  |   |  |
-        | :------  | :------: | :------: |
-        | size | **STRING**     | "\<width> \<length> \<height>" e.g. "0.5 0.5 1.2" in meters|
-        | mesh | **STRING**      | file path to .stl file |
-
+Description of configuration .yaml parameters is available in `.github/samples` directory [README](.github/samples/README.md)
+>[!CAUTION]
+>Running `urdf_generator.py` script deletes every previously generated description file. Make sure you backed up your work!
 
 <details>
 <summary><b> Linux </b></summary>
@@ -55,4 +31,8 @@ After building devcontainer below steps need to be performed for every installat
 ```bash
 python3 /home/ws/src/uni_pal_generator/scripts/urdf_generator.py
 colcon build
+```
+In order to see your work below command needs to be run
+```bash
+ros2 launch uni_pal urdf.test.launch.py
 ```
