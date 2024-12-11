@@ -1,6 +1,9 @@
 #   CONFIG.YAML SETUP & PARAMETERS
 >[!CAUTION]
 >Running `urdf_generator.py` script deletes every previously generated description file. Make sure you backed up your work!
+
+>[!WARNING]
+>**REMEMBER!** Every shape uses its center in x, y, z as default origin and every mesh uses point declared in .stl as its origin - make sure to properly adjust it in CAD software!
 -   system:
     |  |   |  |
     | :------  | :------: | :------: |
@@ -22,8 +25,6 @@
 
 -   scene:
     -   element:
-        >[!WARNING]
-        >**REMEMBER!** Every shape uses its center in x, y, z as default origin and every mesh uses point declared in .stl as its origin - make sure to properly adjust it in CAD software!
 
         required
         |  |   |  |

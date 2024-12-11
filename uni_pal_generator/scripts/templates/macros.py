@@ -1,11 +1,85 @@
-<?xml version="1.0"?>
-<robot xmlns:xacro="http://wiki.ros.org/xacro" name="ur10">
-  <xacro:arg name="name" default="ur10"/>      
+box_template_ = """<box size="{{ size }}"/>"""
+#mesh_template_ = """<mesh filename="package://uni_pal_description/meshes/{{ mesh }}" scale="{{ scale }}"/>"""
+mesh_template_ = """<mesh filename="file://$(find uni_pal_description)/meshes/{{ mesh }}" scale="{{ scale }}"/>"""
+origin_template_ = """<origin xyz="{{ origin_xyz }}" rpy="{{ origin_rpy }}"/>"""
+xacro_include_template = """\t<xacro:include filename="{{ file_path }}"/> """
+urdf_template = """<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="{{ robot_name }}">
+  <xacro:arg name="name" default="{{ robot_name }}"/>      
   <link name="world" />
 
-	<xacro:include filename="$(find uni_pal_description)/urdf/pallet_right.urdf"/> 
-	<xacro:include filename="$(find uni_pal_description)/urdf/station.urdf"/> 
 
+</robot>
+"""
+
+element_template = """<?xml version="1.0"?>
+<robot name="{{ name }}">
+  <link name="{{ name }}">
+      <visual>
+        {{ origin }}
+        <geometry>
+        {{ geometry }}
+        </geometry>
+        <material name="Gray">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        {{ origin }}
+        <geometry>
+        {{ geometry }}
+        </geometry>
+      </collision>
+  </link>
+  <joint name="{{ parent }} - {{ name }}" type="fixed">
+    <origin xyz="{{ position }}" rpy="{{ orientation }}" />
+    <parent link="{{ parent }}" />
+    <child link="{{ name }}" />
+  </joint>
+</robot>"""
+
+techman_robots = {
+    'urdf_macro_include': """$(find tm_description)/xacro/macro.{{ model }}-nominal.urdf.xacro""",
+    'urdf_macro': """
+  <xacro:arg name="ns" default="" />
+  <xacro:arg name="prefix" default="" />
+  <xacro:arg name="color" default="none" />
+  <xacro:arg name="trans_hw_iface" default="hardware_interface/PositionJointInterface" />
+
+  <xacro:include filename="$(find tm_description)/xacro/macro.gazebo.xacro" />
+  <xacro:include filename="$(find tm_description)/xacro/macro.transmission.xacro" />
+  <xacro:include filename="$(find tm_description)/xacro/macro.materials.xacro" />
+  <xacro:include filename="$(find tm_description)/xacro/macro.{{ model }}-nominal.urdf.xacro" />
+
+  <!--  -->
+  <xacro:tmr_gazebo ns="$(arg ns)" prefix="$(arg prefix)" />
+  <xacro:tmr_transmission prefix="$(arg prefix)" hw_iface="$(arg trans_hw_iface)" />
+  <xacro:tmr_materials/>
+
+
+  <!-- Arm -->
+  <xacro:property name="color" value="$(arg color)"/>
+  <xacro:if value="${color == 'none'}">
+    <xacro:{{ model }} ns="$(arg ns)" prefix="$(arg prefix)" />
+  </xacro:if>
+
+
+  <!-- Arm.color.stl -->
+  <xacro:unless value="${color == 'none'}">
+    <xacro:{{ model }} ns="$(arg ns)" prefix="$(arg prefix)" color="${color}" format="stl" />
+  </xacro:unless>
+
+  <joint name="base - {{ parent }}" type="fixed">
+   <parent link="{{ parent }}" />
+   <child link="base" />
+   <origin xyz="{{ origin_xyz }}" rpy="{{ origin_rpy }}" />
+  </joint>
+"""
+}
+
+universal_robots = {
+    'urdf_macro_include': """$(find ur_description)/urdf/ur_macro.xacro""",
+    'urdf_macro': """
   <!-- import main macro -->
   <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
   <xacro:arg name="ur_type" default="ur5x"/>
@@ -56,7 +130,7 @@
   <xacro:ur_robot
     name="$(arg name)"
     tf_prefix="$(arg tf_prefix)"
-    parent="station"
+    parent="{{ parent }}"
     joint_limits_parameters_file="$(arg joint_limit_params)"
     kinematics_parameters_file="$(arg kinematics_params)"
     physical_parameters_file="$(arg physical_params)"
@@ -90,8 +164,9 @@
     script_sender_port="$(arg script_sender_port)"
     trajectory_port="$(arg trajectory_port)"
     >
-    <origin xyz="0.075 0.0 0.71" rpy="0.0 0.0 0.0" />          <!-- position robot in the world -->
+    <origin xyz="{{ origin_xyz }}" rpy="{{ origin_rpy }}" />          <!-- position robot in the world -->
   </xacro:ur_robot>
 
+"""
+}
 
-</robot>

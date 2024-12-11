@@ -7,3 +7,7 @@ repositories:
     type: git
     url: https://github.com/moveit/py_binding_tools.git
     version: ros2
+  tm_robot:
+    type: git
+    url: https://github.com/TechmanRobotInc/tmr_ros2.git
+    version: humble
