@@ -24,6 +24,12 @@ def delete_old_files(description_dir, ignore_list_file):
 def get_robot_specific(robot_type):
     return macros.universal_robots if robot_type == 'universal_robots' else macros.techman_robots if robot_type == 'techman_robots' else None
 
+def find_value_for_key(d, key):
+    for k, v in d.items():
+        if k == key:
+            return v
+    return key
+
 # URDF SPECIFIC
 def start_urdf(file_path, name):
   template = Template(macros.urdf_template)
@@ -40,7 +46,7 @@ def append_element(file_path, element_path):
   )
   insert_content(file_path, append_content)
 
-def generate_elements(urdf_path, scene, description_dir):
+def generate_elements(urdf_path, scene, robot_specific, description_dir):
     template = Template(macros.element_template)
     if scene is None or scene == {}:
         return
@@ -58,6 +64,7 @@ def generate_elements(urdf_path, scene, description_dir):
            geometry_ = geometry_template.render(
               size=properties["size"]
            )
+        parent_ = find_value_for_key(robot_specific['links'], properties["parent"])
         origin_template = Template(macros.origin_template_)
         origin_xyz = properties["origin_xyz"] if "origin_xyz" in properties else "0.0 0.0 0.0"
         origin_rpy = properties["origin_rpy"] if "origin_rpy" in properties else "0.0 0.0 0.0"
@@ -71,7 +78,7 @@ def generate_elements(urdf_path, scene, description_dir):
             orientation=properties['orientation'],
             geometry=geometry_,
             origin=origin_,
-            parent=properties['parent']
+            parent=parent_
         )
         element_file_path = os.path.join(description_dir, 'urdf', f"{name}.urdf")
         element_find_path = os.path.join("$(find uni_pal_description)", "urdf", f"{name}.urdf")
@@ -81,7 +88,7 @@ def generate_elements(urdf_path, scene, description_dir):
         print(f"Element file generated at {element_file_path}")
 
 def append_robot(urdf_path, robot):
-   robot_template = Template(get_robot_specific(robot["type"])['urdf_macro'])
+   robot_template = Template(robot['specific']['urdf_macro'])
    origin_xyz_ = robot["origin_xyz"] if "origin_xyz" in robot else "0.0 0.0 0.0"
    origin_rpy_ = robot["origin_rpy"] if "origin_rpy" in robot else "0.0 0.0 0.0"
 

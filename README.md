@@ -12,7 +12,7 @@ for every robot with just one source code - Thesis topic in Polish:
 ##  CONFIG.YAML
 Description of configuration .yaml parameters is available in `.github/samples` directory [README](.github/samples/README.md)
 >[!CAUTION]
->Running `urdf_generator.py` script deletes every previously generated description file. Make sure you backed up your work!
+>Running `urdf_generator.py` script deletes every previously generated description file and overwrites defined launch_type. Make sure you backed up your work!
 
 <details>
 <summary><b> Linux </b></summary>

@@ -1,3 +1,4 @@
+
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
@@ -15,13 +16,14 @@ def generate_launch_description():
             "is not set, it enables use of a custom description.",
         )
     )
-    description_package = LaunchConfiguration("description_package")
     
+    description_package = LaunchConfiguration("description_package")
+
     robot_description_content = Command(
         [
             PathJoinSubstitution([FindExecutable(name="xacro")]),
             " ",
-            "/home/ws/src/uni_pal_description/urdf/robot.urdf.xacro"
+            "/home/ws/src/uni_pal_description/urdf/robot.urdf.xacro",
         ]
     )
     robot_description = {"robot_description": robot_description_content}
@@ -37,8 +39,7 @@ def generate_launch_description():
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
-        respawn=True,
-        output="screen",
+        output="both",
         parameters=[robot_description],
     )
     rviz_node = Node(
@@ -56,3 +57,4 @@ def generate_launch_description():
     ]
 
     return LaunchDescription(declared_arguments + nodes_to_start)
+    

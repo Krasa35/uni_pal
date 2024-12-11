@@ -74,7 +74,25 @@ techman_robots = {
    <child link="base" />
    <origin xyz="{{ origin_xyz }}" rpy="{{ origin_rpy }}" />
   </joint>
-"""
+""",
+    'links': {
+        'base': 'base',
+        'base_2': 'link_0',
+        'link_1': 'link_1',
+        'link_2': 'link_2',
+        'link_3': 'link_3',
+        'link_4': 'link_4',
+        'link_5': 'link_5',
+        'link_6': 'link_6',
+    },
+    'joints': {
+        'joint_1': 'joint_1',
+        'joint_2': 'joint_2',
+        'joint_3': 'joint_3',
+        'joint_4': 'joint_4',
+        'joint_5': 'joint_5',
+        'joint_6': 'joint_6',
+    }
 }
 
 universal_robots = {
@@ -82,7 +100,7 @@ universal_robots = {
     'urdf_macro': """
   <!-- import main macro -->
   <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
-  <xacro:arg name="ur_type" default="ur5x"/>
+  <xacro:arg name="ur_type" default="{{ model }}"/>
   <!-- parameters -->
   <xacro:arg name="tf_prefix" default="" />
   <xacro:arg name="joint_limit_params" default="$(find ur_description)/config/$(arg ur_type)/joint_limits.yaml"/>
@@ -167,6 +185,87 @@ universal_robots = {
     <origin xyz="{{ origin_xyz }}" rpy="{{ origin_rpy }}" />          <!-- position robot in the world -->
   </xacro:ur_robot>
 
-"""
+""",
+    'links': {
+        'base': 'base_link',
+        'base_2': 'base_link_inertia',
+        'link_1': 'shoulder_link',
+        'link_2': 'upper_arm_link',
+        'link_3': 'forearm_link',
+        'link_4': 'wrist_1_link',
+        'link_5': 'wrist_2_link',
+        'link_6': 'wrist_3_link',
+    },
+    'joints': {
+        'joint_1': 'shoulder_pan_joint',
+        'joint_2': 'shoulder_lift_joint',
+        'joint_3': 'elbow_joint',
+        'joint_4': 'wrist_1_joint',
+        'joint_5': 'wrist_2_joint',
+        'joint_6': 'wrist_3_joint',
+    }
+}
+
+launch_templates = {
+    'visualize_w_joint_gui': """
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
+from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
+
+
+def generate_launch_description():
+    declared_arguments = []
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "description_package",
+            default_value="uni_pal_description",
+            description="Description package with robot URDF/XACRO files. Usually the argument "
+            "is not set, it enables use of a custom description.",
+        )
+    )
+    
+    description_package = LaunchConfiguration("description_package")
+
+    robot_description_content = Command(
+        [
+            PathJoinSubstitution([FindExecutable(name="xacro")]),
+            " ",
+            "/home/ws/src/uni_pal_description/urdf/robot.urdf.xacro",
+        ]
+    )
+    robot_description = {"robot_description": robot_description_content}
+
+    rviz_config_file = PathJoinSubstitution(
+        [FindPackageShare(description_package), "rviz", "view_robot.rviz"]
+    )
+
+    joint_state_publisher_node = Node(
+        package="joint_state_publisher_gui",
+        executable="joint_state_publisher_gui",
+    )
+    robot_state_publisher_node = Node(
+        package="robot_state_publisher",
+        executable="robot_state_publisher",
+        output="both",
+        parameters=[robot_description],
+    )
+    rviz_node = Node(
+        package="rviz2",
+        executable="rviz2",
+        name="rviz2",
+        output="log",
+        arguments=["-d", rviz_config_file],
+    )
+
+    nodes_to_start = [
+        joint_state_publisher_node,
+        robot_state_publisher_node,
+        rviz_node,
+    ]
+
+    return LaunchDescription(declared_arguments + nodes_to_start)
+    """
 }
 

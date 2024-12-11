@@ -1,14 +1,15 @@
 <?xml version="1.0"?>
-<robot xmlns:xacro="http://wiki.ros.org/xacro" name="ur10">
-  <xacro:arg name="name" default="ur10"/>      
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="ur20">
+  <xacro:arg name="name" default="ur20"/>      
   <link name="world" />
 
+	<xacro:include filename="$(find uni_pal_description)/urdf/pallet_left.urdf"/> 
 	<xacro:include filename="$(find uni_pal_description)/urdf/pallet_right.urdf"/> 
 	<xacro:include filename="$(find uni_pal_description)/urdf/station.urdf"/> 
 
   <!-- import main macro -->
   <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
-  <xacro:arg name="ur_type" default="ur5x"/>
+  <xacro:arg name="ur_type" default="ur20"/>
   <!-- parameters -->
   <xacro:arg name="tf_prefix" default="" />
   <xacro:arg name="joint_limit_params" default="$(find ur_description)/config/$(arg ur_type)/joint_limits.yaml"/>
@@ -93,5 +94,9 @@
     <origin xyz="0.075 0.0 0.71" rpy="0.0 0.0 0.0" />          <!-- position robot in the world -->
   </xacro:ur_robot>
 
+	<xacro:include filename="$(find uni_pal_description)/urdf/padding_j3.urdf"/> 
+	<xacro:include filename="$(find uni_pal_description)/urdf/padding_j4.urdf"/> 
+	<xacro:include filename="$(find uni_pal_description)/urdf/padding_j5.urdf"/> 
+	<xacro:include filename="$(find uni_pal_description)/urdf/gripper.urdf"/> 
 
 </robot>
