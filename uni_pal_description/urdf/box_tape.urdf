@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<robot name="box_tape">
+  <link name="box_tape">
+      <visual>
+        <origin xyz="0.6 0.4 0.0" rpy="0.0 0.0 0.0"/>
+        <geometry>
+        <mesh filename="file://$(find uni_pal_description)/meshes/pojemnikopaleta.stl" scale="10 10 10"/>
+        </geometry>
+        <material name="Gray">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0.6 0.4 0.0" rpy="0.0 0.0 0.0"/>
+        <geometry>
+        <mesh filename="file://$(find uni_pal_description)/meshes/pojemnikopaleta.stl" scale="10 10 10"/>
+        </geometry>
+      </collision>
+  </link>
+  <joint name="world - box_tape" type="fixed">
+    <origin xyz="1.05 0.15 0.0" rpy="0.0 0.0 0.0" />
+    <parent link="world" />
+    <child link="box_tape" />
+  </joint>
+</robot>

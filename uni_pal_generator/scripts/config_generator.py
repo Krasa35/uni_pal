@@ -33,6 +33,6 @@ urdf.generate_elements(output_file_path, accessories, robot['specific'], uni_pal
 uni_pal_dir = "/home/ws/src/uni_pal"
 launch_file_path = os.path.join(uni_pal_dir, 'launch', system['launch_type'] + '.launch.py')
 
-launch.generate_launch(launch_file_path, system['launch_type'], robot['model'])
+launch.generate_launch(launch_file_path, system['launch_type'], robot['model'], robot['ip'])
 
 print(f"URDF file generated at {output_file_path}")

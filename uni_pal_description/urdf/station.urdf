@@ -4,7 +4,7 @@
       <visual>
         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
         <geometry>
-        <mesh filename="file://$(find uni_pal_description)/meshes/base.stl" scale="1.0 1.0 1.0"/>
+        <mesh filename="file://$(find uni_pal_description)/meshes/station.stl" scale="10 10 10"/>
         </geometry>
         <material name="Gray">
         <color rgba="0.5 0.5 0.5 1.0"/>
@@ -13,12 +13,12 @@
       <collision>
         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
         <geometry>
-        <mesh filename="file://$(find uni_pal_description)/meshes/base.stl" scale="1.0 1.0 1.0"/>
+        <mesh filename="file://$(find uni_pal_description)/meshes/station.stl" scale="10 10 10"/>
         </geometry>
       </collision>
   </link>
   <joint name="world - station" type="fixed">
-    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 -1.57" />
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 3.1415" />
     <parent link="world" />
     <child link="station" />
   </joint>

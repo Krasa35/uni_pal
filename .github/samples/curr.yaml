@@ -1,9 +1,10 @@
 system: # OPTIONS
   username: ros2-dev
   simulation: true
+  launch_type: "visualize_w_joint_gui" # visualize_w_joint_gui
 robot:
   type: universal_robots # universal_robots / techman_robots
-  model: ur10
+  model: ur20
   ip: 192.168.56.101
   parent: "station"
   origin_xyz: "0.075 0.0 0.71"
@@ -28,3 +29,25 @@ scene:
     position: "0.0 0.0 0.0"
     orientation: "0.0 0.0 -1.57"
     parent: "world"
+accessories:
+  padding_j3:
+    mesh: "/home/ws/.github/Company_data/RC10_meshes/Padding_RC10_3.stl"
+    position: "-0.6 0.0 0.2"
+    orientation: "0.0 0.0 1.57"
+    parent: "link_2"
+  padding_j4:
+    mesh: "/home/ws/.github/Company_data/RC10_meshes/Padding_RC10_3.stl"
+    position: "-0.033 0.0 0.03"
+    orientation: "0.0 3.14 -1.57"
+    parent: "link_3"
+  padding_j5:
+    mesh: "/home/ws/.github/Company_data/RC10_meshes/Padding_RC10_5.stl"
+    position: "0.0005 0.0 -0.02"
+    orientation: "1.57 0.0 3.14"
+    parent: "link_5"
+  gripper:
+    mesh: "/home/ws/.github/Company_data/RC10_meshes/RC10_TG_CZ_NESTLE/gripper.stl"
+    position: "0.03 0.0 0.0"
+    orientation: "0.0 0.0 3.14"
+    origin_rpy: "0.0 1.57 0.0"
+    parent: "flange"

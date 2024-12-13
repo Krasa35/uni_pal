@@ -1,0 +1,48 @@
+# start ursim first ur20
+system: # OPTIONS
+  username: ros2-dev
+  simulation: true
+  launch_type: "visualize_w_physical_connection" # visualize_w_joint_gui / visualize_w_physical_connection
+robot:
+  type: universal_robots # universal_robots / techman_robots
+  model: ur20
+  ip: 192.168.56.101
+  parent: "station"
+  origin_xyz: "0.0 0.0 0.99"
+  origin_rpy: "0.0 0.0 0.0"
+scene:
+  pallet: # EUPALLET
+    size: "0.784 0.984 1.180" # "1.0/1.02 1.2/1.22 0.15/0.122" US to 1200x1000x150 INDUSTRIAL
+    mesh: "/home/ws/.github/Company_data/RC10_meshes/Paleta_small.stl"
+    position: "-1.2 -1.0 0.0" # position: "-0.79 -0.1 0.0" - "size/2" for US, compute for EU
+    orientation: "0.0 0.0 0.0"
+    origin_xyz: "0.4 0.6 0.0"
+    parent: "world"
+  box_slipsheets: # EUPALLET
+    size: "10 10 10"
+    mesh: "/home/ws/.github/Company_data/RC10_meshes/C087.50065_MARS_NL/pojemnikopaleta2.stl"
+    position: "0.48 -1.14 0.0" # position: "-0.79 -0.1 0.0" - "size/2" for US, compute for EU
+    orientation: "0.0 0.0 0.0"
+    origin_xyz: "0.6 0.51 0.0"
+    parent: "world"
+  box_tape: # EUPALLET
+    mesh: "/home/ws/.github/Company_data/RC10_meshes/C087.50065_MARS_NL/pojemnikopaleta.stl"
+    size: "10 10 10"
+    position: "1.05 0.15 0.0" # position: "-0.79 -0.1 0.0" - "size/2" for US, compute for EU
+    orientation: "0.0 0.0 0.0"
+    origin_xyz: "0.6 0.4 0.0"
+    parent: "world"
+  station:
+    mesh: "/home/ws/.github/Company_data/RC10_meshes/C087.50065_MARS_NL/station.stl"
+    size: "10 10 10"
+    position: "0.0 0.0 0.0"
+    orientation: "0.0 0.0 3.1415"
+    parent: "world"
+accessories:
+  gripper:
+    mesh: "/home/ws/.github/Company_data/RC10_meshes/C087.50065_MARS_NL/Chwytak_50065.stl"
+    size: "10 10 10"
+    position: "0.1 0.0 0.0"
+    orientation: "0.0 0.0 3.14"
+    origin_rpy: "0.0 1.57 0.0"
+    parent: "flange"
