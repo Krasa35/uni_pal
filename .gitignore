@@ -6,3 +6,4 @@ _cache/log/*
 !_cache/log/.gitkeep
 uni_pal_description/meshes/*
 !uni_pal_description/meshes/.gitkeep
+build

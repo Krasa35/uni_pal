@@ -47,16 +47,16 @@ def generate_launch_description():
     tf_prefix = LaunchConfiguration("tf_prefix")
 
     joint_limit_params = PathJoinSubstitution(
-        [FindPackageShare(ur_package), "config", "ur10", "joint_limits.yaml"]
+        [FindPackageShare(ur_package), "config", "ur20", "joint_limits.yaml"]
     )
     kinematics_params = PathJoinSubstitution(
-        [FindPackageShare(ur_package), "config", "ur10", "default_kinematics.yaml"]
+        [FindPackageShare(ur_package), "config", "ur20", "default_kinematics.yaml"]
     )
     physical_params = PathJoinSubstitution(
-        [FindPackageShare(ur_package), "config", "ur10", "physical_parameters.yaml"]
+        [FindPackageShare(ur_package), "config", "ur20", "physical_parameters.yaml"]
     )
     visual_params = PathJoinSubstitution(
-        [FindPackageShare(ur_package), "config", "ur10", "visual_parameters.yaml"]
+        [FindPackageShare(ur_package), "config", "ur20", "visual_parameters.yaml"]
     )
     script_filename = PathJoinSubstitution(
         [FindPackageShare("ur_client_library"), "resources", "external_control.urscript"]
@@ -96,7 +96,7 @@ def generate_launch_description():
             visual_params,
             " ",
             "name:=",
-            "ur10",
+            "ur20",
             " ",
             "script_filename:=",
             script_filename,
@@ -120,7 +120,7 @@ def generate_launch_description():
         [
             FindPackageShare("ur_robot_driver"),
             "config",
-            "ur10_update_rate.yaml",
+            "ur20_update_rate.yaml",
         ]
     )
 
