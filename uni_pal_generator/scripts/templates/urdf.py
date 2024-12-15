@@ -16,10 +16,13 @@ def delete_old_files(description_dir, ignore_list_file):
     with open(ignore_list_file, 'r') as file:
         ignore_list = [line.strip() for line in file.readlines()]
     
-    files = glob.glob(os.path.join(description_dir, '*'))
-    for f in files:
-        if os.path.basename(f) not in ignore_list and f != ignore_list_file:
-            os.remove(f)            
+    items = glob.glob(os.path.join(description_dir, '*'))
+    for item in items:
+        if os.path.basename(item) not in ignore_list and item != ignore_list_file:
+            if os.path.isdir(item):
+                shutil.rmtree(item)
+            else:
+                os.remove(item)
 
 def get_robot_specific(robot_type):
     return macros.universal_robots if robot_type == 'universal_robots' else macros.techman_robots if robot_type == 'techman_robots' else None

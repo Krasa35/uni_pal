@@ -4,7 +4,7 @@
       <visual>
         <origin xyz="0.0 0.0 0.0" rpy="0.0 1.57 0.0"/>
         <geometry>
-        <mesh filename="file://$(find uni_pal_description)/meshes/Chwytak_50065.stl" scale="10 10 10"/>
+        <mesh filename="file://$(find uni_pal_description)/meshes/gripper.stl" scale="1.0 1.0 1.0"/>
         </geometry>
         <material name="Gray">
         <color rgba="0.5 0.5 0.5 1.0"/>
@@ -13,12 +13,12 @@
       <collision>
         <origin xyz="0.0 0.0 0.0" rpy="0.0 1.57 0.0"/>
         <geometry>
-        <mesh filename="file://$(find uni_pal_description)/meshes/Chwytak_50065.stl" scale="10 10 10"/>
+        <mesh filename="file://$(find uni_pal_description)/meshes/gripper.stl" scale="1.0 1.0 1.0"/>
         </geometry>
       </collision>
   </link>
   <joint name="flange - gripper" type="fixed">
-    <origin xyz="0.1 0.0 0.0" rpy="0.0 0.0 3.14" />
+    <origin xyz="0.03 0.0 0.0" rpy="0.0 0.0 3.14" />
     <parent link="flange" />
     <child link="gripper" />
   </joint>
