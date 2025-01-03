@@ -2,15 +2,8 @@ import os
 import shutil
 from jinja2 import Template
 from templates import macros
+from uni_pal_pylib.utils import insert_content
 import glob
-
-def insert_content(file_path, content):
-  with open(file_path, 'r') as urdf_file:
-      lines=urdf_file.readlines()
-  lines.insert(-2, content)
-  lines.insert(-2, "\n")
-  with open(file_path, 'w') as urdf_file:
-      urdf_file.writelines(lines)
 
 def delete_old_files(description_dir, ignore_list_file):
     with open(ignore_list_file, 'r') as file:
@@ -36,8 +29,10 @@ def find_value_for_key(d, key):
 # URDF SPECIFIC
 def start_urdf(file_path, name):
   template = Template(macros.urdf_template)
+  tm_ = True if name[:2] == 'tm' else False
   urdf_content = template.render(
-      robot_name=name
+      robot_name=name,
+      tm=tm_
   )
   with open(file_path, 'w') as urdf_file:
       urdf_file.write(urdf_content)
@@ -47,7 +42,7 @@ def append_element(file_path, element_path):
   append_content = template.render(
       file_path=element_path
   )
-  insert_content(file_path, append_content)
+  insert_content(file_path, append_content, -2)
 
 def generate_elements(urdf_path, scene, robot_specific, description_dir):
     template = Template(macros.element_template)
@@ -98,7 +93,8 @@ def append_robot(urdf_path, robot):
    robot_ = robot_template.render(
       model=robot["model"],
       parent=robot["parent"],
+      robot_ip=robot["ip"],
       origin_xyz=origin_xyz_,
       origin_rpy=origin_rpy_
    )
-   insert_content(urdf_path, robot_)
+   insert_content(urdf_path, robot_, -2)

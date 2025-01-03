@@ -1,0 +1,23 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: uni_pal_description
+    relative_path: urdf/robot.urdf.xacro
+    # xacro_args: "arg1:=value1 arg2:=value2 arg3:=value3"
+  srdf:
+    package: uni_pal_description
+    relative_path: config/robot.srdf
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity
+  modified_urdf:
+    xacros:
+      - control_xacro
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity

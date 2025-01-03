@@ -14,6 +14,10 @@
 
  <depend>ur</depend>
  <depend>uni_pal_msgs</depend>
+ <depend>uni_pal_cpplib</depend>
+ <depend>rclcpp</depend>
+ <depend>std_msgs</depend>
+ 
 
  <export>
    <build_type>ament_cmake</build_type>

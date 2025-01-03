@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 import json
-import time
 import rclpy
-from rclpy.action import ActionServer
 from rclpy.node import Node
 from uni_pal_msgs.srv import GetPalParams
 from uni_pal_msgs.srv import GetPlacePos
-from geometry_msgs.msg import PoseStamped
+from uni_pal_pylib.utils import create_pose_stamped, print_pose_stamped
 from dataclasses import dataclass, field
 from typing import List
 
@@ -141,6 +139,7 @@ class ServiceServer(Node):
 
         # Find the layer pattern for the given layer number
         layer_pattern = None
+        self.get_logger().info(f'Got request for /get_box_position service: \n\tlayer_no: {request.layer_no}\n\tbox_no: {request.box_no}\n\tpallet_side: {request.pallet_side}')
         for layer in self.json_data.pallet.layers:
             if layer.number == request.layer_no:
                 layer_pattern = layer.layerPattern
@@ -154,11 +153,23 @@ class ServiceServer(Node):
             if pattern.name == layer_pattern:
                 if request.box_no <= len(pattern.boxPositions):
                     if request.pallet_side == "LEFT":
-                        return pattern.boxPositions[request.box_id]['x'], pattern.boxPositions[request.box_id]['y'], pattern.boxPositions[request.box_id]['rotation']
+                        response.place_pose = create_pose_stamped(
+                            xyz_=[pattern.boxPositions[request.box_no]['x'], 
+                                  pattern.boxPositions[request.box_no]['y'], 
+                                  0.0], 
+                            rpy_=[0.0, 0.0, 0.0], 
+                            seconds_=0,
+                            frame_id_="base_link")
                     if  request.pallet_side == "RIGHT":
-                        return pattern.boxPositionsAlt[request.box_id]['x'], pattern.boxPositionsAlt[request.box_id]['y'], pattern.boxPositionsAlt[request.box_id]['rotation']
-
-        raise ValueError(f"Box ID {request.box_id + 1} not found in layer number {request.layer_no}")
+                        response.place_pose = create_pose_stamped(
+                            xyz_=[pattern.boxPositionsAlt[request.box_no]['x'], 
+                                  pattern.boxPositionsAlt[request.box_no]['y'], 
+                                  0.0], 
+                            rpy_=[0.0, 0.0, 0.0], 
+                            seconds_=0,
+                            frame_id_="base_link")
+        self.get_logger().info(f'Processed request for /get_box_position service: \nBox:{print_pose_stamped(response.place_pose)}')
+        return response
 
     def handle_palletize_parameters(self, request, response: GetPalParams.Response):
         self.get_logger().info('Handling request...')

@@ -2,7 +2,6 @@
 <robot xmlns:xacro="http://wiki.ros.org/xacro" name="ur10">
   <xacro:arg name="name" default="ur10"/>      
   <link name="world" />
-
 	<xacro:include filename="$(find uni_pal_description)/urdf/pallet_left.urdf"/> 
 	<xacro:include filename="$(find uni_pal_description)/urdf/pallet_right.urdf"/> 
 	<xacro:include filename="$(find uni_pal_description)/urdf/station.urdf"/> 
@@ -22,10 +21,10 @@
   <xacro:arg name="safety_k_position" default="20"/>
   <!-- ros2_control related parameters -->
   <xacro:arg name="headless_mode" default="false" />
-  <xacro:arg name="robot_ip" default="0.0.0.0" />
-  <xacro:arg name="script_filename" default=""/>
-  <xacro:arg name="output_recipe_filename" default=""/>
-  <xacro:arg name="input_recipe_filename" default=""/>
+  <xacro:arg name="robot_ip" default="192.168.56.101" />
+  <xacro:arg name="script_filename" default="$(find ur_client_library)/resources/external_control.urscript"/>
+  <xacro:arg name="output_recipe_filename" default="$(find ur_robot_driver)/resources/rtde_output_recipe.txt"/>
+  <xacro:arg name="input_recipe_filename" default="$(find ur_robot_driver)/resources/rtde_input_recipe.txt"/>
   <xacro:arg name="reverse_ip" default="0.0.0.0"/>
   <xacro:arg name="script_command_port" default="50004"/>
   <xacro:arg name="reverse_port" default="50001"/>
@@ -91,7 +90,7 @@
     script_sender_port="$(arg script_sender_port)"
     trajectory_port="$(arg trajectory_port)"
     >
-    <origin xyz="0.075 0.0 0.71" rpy="0.0 0.0 0.0" />          <!-- position robot in the world -->
+    <origin xyz="0.075 0.0 0.71" rpy="0.0 0.0 1.57" />          <!-- position robot in the world -->
   </xacro:ur_robot>
 
 	<xacro:include filename="$(find uni_pal_description)/urdf/padding_j3.urdf"/> 

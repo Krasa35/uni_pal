@@ -13,8 +13,12 @@ endif()
 
 # find dependencies
 set(THIS_PACKAGE_INCLUDE_DEPENDS
+  tf2
   rclpy
+  rclcpp
+  std_msgs
   uni_pal_msgs
+  uni_pal_cpplib
   geometry_msgs
   ament_cmake
   ur
@@ -31,11 +35,17 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 
+add_executable(robot_client src/robot_client.cpp)
+ament_target_dependencies(robot_client uni_pal_cpplib)
+
+install(TARGETS
+  robot_client
+  DESTINATION lib/${PROJECT_NAME})
+
 # Install launch files.
 install(DIRECTORY
 launch
 DESTINATION share/${PROJECT_NAME}/
-PATTERN "ARCHIVE/*" EXCLUDE 
-)
+PATTERN "ARCHIVE/*" EXCLUDE)
 
 ament_package()

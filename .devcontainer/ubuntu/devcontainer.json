@@ -33,7 +33,7 @@
     },
     "runArgs": [
         "--net=host",
-        "--name=uni_pal",
+        "--name=uni_pal_thesis",
         "-e", "DISPLAY=${env:DISPLAY}"
         // "--gpus=all",
         // "--runtime=nvidia",
@@ -52,7 +52,8 @@
         "source=${localWorkspaceFolder}/.github,target=/home/ws/.github,type=bind",
         "source=${localWorkspaceFolder}/uni_pal,target=/home/ws/src/uni_pal,type=bind",
         "source=${localWorkspaceFolder}/uni_pal_msgs,target=/home/ws/src/uni_pal_msgs,type=bind",
-        "source=${localWorkspaceFolder}/uni_pal_misc_lib,target=/home/ws/src/uni_pal_misc_lib,type=bind",
+        "source=${localWorkspaceFolder}/uni_pal_pylib,target=/home/ws/src/uni_pal_pylib,type=bind",
+        "source=${localWorkspaceFolder}/uni_pal_cpplib,target=/home/ws/src/uni_pal_cpplib,type=bind",
         "source=${localWorkspaceFolder}/uni_pal_description,target=/home/ws/src/uni_pal_description,type=bind",
         "source=${localWorkspaceFolder}/uni_pal_generator,target=/home/ws/src/uni_pal_generator,type=bind",
         "source=${localWorkspaceFolder}/README.md,target=/home/ws/README.md,type=bind"

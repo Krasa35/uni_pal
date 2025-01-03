@@ -1,14 +1,14 @@
 system: # OPTIONS
   username: ros2-dev
   simulation: true
-  launch_type: "visualize_w_joint_gui" # visualize_w_joint_gui
+  launch_type: "moveit_w_physical_connection" # visualize_w_joint_gui
 robot:
   type: universal_robots # universal_robots / techman_robots
-  model: ur20
+  model: ur10
   ip: 192.168.56.101
   parent: "station"
   origin_xyz: "0.075 0.0 0.71"
-  origin_rpy: "0.0 0.0 0.0"
+  origin_rpy: "0.0 0.0 1.57"
 scene:
   pallet_left: # EUPALLET
     size: "0.784 0.984 1.180" # "0.8/1.02 1.2/1.22 0.144/0.122" US to EUR PALLET
@@ -51,3 +51,20 @@ accessories:
     orientation: "0.0 0.0 3.14"
     origin_rpy: "0.0 1.57 0.0"
     parent: "flange"
+srdf:
+  disabled_collisions:
+    base_2: ["link_1", "link_2", "link_4"]
+    link_1: ["link_2", "link_4", "link_5"]
+    link_2: ["link_3", "padding_j3"]
+    link_3: ["link_4", "padding_j4"]
+    link_4: ["link_5", "padding_j5"]
+    link_5: ["link_6", "padding_j5"]
+    link_6: ["gripper"]
+    station: ["pallet_left", "pallet_right", "base"]
+  group_states:
+    manipulator:
+      extended: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+      home: [0.0, 0.0, 1.57, 0.0, 1.57, 0.0]
+      home_left: [1.57, 0.0, 1.57, 0.0, 1.57, 0.0]
+      home_right: [-1.57, 0.0, 1.57, 0.0, 1.57, 0.0]
+

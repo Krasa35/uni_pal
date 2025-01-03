@@ -1,36 +1,18 @@
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
-from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
-from launch_ros.substitutions import FindPackageShare
-
+from launch_ros.parameter_descriptions import ParameterValue
+from moveit_configs_utils.substitutions import Xacro
+from launch_param_builder import get_path
 
 def generate_launch_description():
-    declared_arguments = []
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "description_package",
-            default_value="uni_pal_description",
-            description="Description package with robot URDF/XACRO files. Usually the argument "
-            "is not set, it enables use of a custom description.",
-        )
-    )
     
-    description_package = LaunchConfiguration("description_package")
+    urdf_file = get_path("uni_pal_description", "urdf/robot.urdf.xacro")
+    rviz_config_file = get_path("uni_pal_description", "rviz/view_robot.rviz")
 
-    robot_description_content = Command(
-        [
-            PathJoinSubstitution([FindExecutable(name="xacro")]),
-            " ",
-            "/home/ws/src/uni_pal_description/urdf/robot.urdf.xacro",
-        ]
-    )
-    robot_description = {"robot_description": robot_description_content}
-
-    rviz_config_file = PathJoinSubstitution(
-        [FindPackageShare(description_package), "rviz", "view_robot.rviz"]
-    )
+    robot_description = {"robot_description": ParameterValue(
+        Xacro(urdf_file), value_type=str
+        )}
 
     joint_state_publisher_node = Node(
         package="joint_state_publisher_gui",
@@ -56,5 +38,5 @@ def generate_launch_description():
         rviz_node,
     ]
 
-    return LaunchDescription(declared_arguments + nodes_to_start)
+    return LaunchDescription(nodes_to_start)
     

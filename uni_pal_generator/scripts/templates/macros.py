@@ -8,7 +8,6 @@ urdf_template = """<?xml version="1.0"?>
   <xacro:arg name="name" default="{{ robot_name }}"/>      
   <link name="world" />
 
-
 </robot>
 """
 
@@ -74,9 +73,14 @@ techman_robots = {
    <child link="base" />
    <origin xyz="{{ origin_xyz }}" rpy="{{ origin_rpy }}" />
   </joint>
+
+  <xacro:arg name="initial_positions_file" default="$(find uni_pal_description)/config/initial_positions.yaml" />
+  <xacro:include filename="$(find uni_pal_description)/config/tm12.ros2_control.xacro" />
+  <xacro:tm12_ros2_control name="FakeSystem" initial_positions_file="$(arg initial_positions_file)"/>
+
 """,
     'links': {
-        'base': 'base',
+        'base': 'link_0',
         'base_2': 'link_0',
         'link_1': 'link_1',
         'link_2': 'link_2',
@@ -113,10 +117,10 @@ universal_robots = {
   <xacro:arg name="safety_k_position" default="20"/>
   <!-- ros2_control related parameters -->
   <xacro:arg name="headless_mode" default="false" />
-  <xacro:arg name="robot_ip" default="0.0.0.0" />
-  <xacro:arg name="script_filename" default=""/>
-  <xacro:arg name="output_recipe_filename" default=""/>
-  <xacro:arg name="input_recipe_filename" default=""/>
+  <xacro:arg name="robot_ip" default="{{ robot_ip }}" />
+  <xacro:arg name="script_filename" default="$(find ur_client_library)/resources/external_control.urscript"/>
+  <xacro:arg name="output_recipe_filename" default="$(find ur_robot_driver)/resources/rtde_output_recipe.txt"/>
+  <xacro:arg name="input_recipe_filename" default="$(find ur_robot_driver)/resources/rtde_input_recipe.txt"/>
   <xacro:arg name="reverse_ip" default="0.0.0.0"/>
   <xacro:arg name="script_command_port" default="50004"/>
   <xacro:arg name="reverse_port" default="50001"/>
@@ -187,8 +191,8 @@ universal_robots = {
 
 """,
     'links': {
-        'base': 'base_link',
-        'base_2': 'base_link_inertia',
+        'base': 'base_link_inertia',
+        'base_2': 'base_link',
         'link_1': 'shoulder_link',
         'link_2': 'upper_arm_link',
         'link_3': 'forearm_link',
@@ -203,43 +207,41 @@ universal_robots = {
         'joint_4': 'wrist_1_joint',
         'joint_5': 'wrist_2_joint',
         'joint_6': 'wrist_3_joint',
-    }
+    },
+    'to_ompl': """
+planning_plugin: ompl_interface/OMPLPlanner
+request_adapters: default_planner_request_adapters/AddTimeOptimalParameterization default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints
+start_state_max_bounds_error: 0.1
+""",
+    'to_controllers': """
+trajectory_execution:
+  allowed_execution_duration_scaling: 1.2
+  allowed_goal_duration_margin: 0.5
+  allowed_start_tolerance: 0.01
+  trajectory_duration_monitoring: true
+
+moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
+
+moveit_simple_controller_manager: 
+"""
 }
 
 launch_templates = {
     'visualize_w_joint_gui': """
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
-from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
-from launch_ros.substitutions import FindPackageShare
-
+from launch_ros.parameter_descriptions import ParameterValue
+from moveit_configs_utils.substitutions import Xacro
+from launch_param_builder import get_path
 
 def generate_launch_description():
-    declared_arguments = []
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "description_package",
-            default_value="uni_pal_description",
-            description="Description package with robot URDF/XACRO files. Usually the argument "
-            "is not set, it enables use of a custom description.",
-        )
-    )
     
-    description_package = LaunchConfiguration("description_package")
+    urdf_file = get_path("uni_pal_description", "urdf/robot.urdf.xacro")
+    rviz_config_file = get_path("uni_pal_description", "rviz/view_robot.rviz")
 
-    robot_description_content = Command(
-        [
-            PathJoinSubstitution([FindExecutable(name="xacro")]),
-            " ",
-            "/home/ws/src/uni_pal_description/urdf/robot.urdf.xacro",
-        ]
-    )
-    robot_description = {"robot_description": robot_description_content}
-
-    rviz_config_file = PathJoinSubstitution(
-        [FindPackageShare(description_package), "rviz", "view_robot.rviz"]
-    )
+    robot_description = {"robot_description": ParameterValue(
+        Xacro(urdf_file), value_type=str
+        )}
 
     joint_state_publisher_node = Node(
         package="joint_state_publisher_gui",
@@ -265,136 +267,28 @@ def generate_launch_description():
         rviz_node,
     ]
 
-    return LaunchDescription(declared_arguments + nodes_to_start)
+    return LaunchDescription(nodes_to_start)
     """,
     'visualize_w_physical_connection': """
-
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
-from launch_ros.substitutions import FindPackageShare
-from launch_ros.parameter_descriptions import ParameterFile
-
+from launch_ros.parameter_descriptions import ParameterFile, ParameterValue
+from moveit_configs_utils.substitutions import Xacro
+from launch_param_builder import get_path
 
 def generate_launch_description():
-    declared_arguments = []
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "description_package",
-            default_value="uni_pal_description",
-            description="Description package with robot URDF/XACRO files. Usually the argument "
-            "is not set, it enables use of a custom description.",
-        )
-    )
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "ur_package",
-            default_value="ur_description",
-            description="Description package with robot URDF/XACRO files. Usually the argument "
-            "is not set, it enables use of a custom description.",
-        )
-    )
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "controller_spawner_timeout",
-            default_value="10",
-            description="Timeout used when spawning controllers.",
-        )
-    )
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "tf_prefix",
-            default_value="",
-            description="tf_prefix of the joint names, useful for \
-        multi-robot setup. If changed, also joint names in the controllers' configuration \
-        have to be updated.",
-        )
-    )
+    declared_arguments=[DeclareLaunchArgument("tf_prefix", default_value="")]
+
+    urdf_file = get_path("uni_pal_description", "urdf/robot.urdf.xacro")
+    rviz_config_file = get_path("uni_pal_description", "rviz/view_robot.rviz")
+    initial_joint_controllers = get_path("ur_robot_driver", "config/ur_controllers.yaml")
+    update_rate_config_file = get_path("ur_robot_driver", "config/ur10_update_rate.yaml")
+
+    robot_description = {"robot_description": ParameterValue(
+        Xacro(urdf_file), value_type=str
+        )}
     
-    description_package = LaunchConfiguration("description_package")
-    ur_package = LaunchConfiguration("ur_package")
-    controller_spawner_timeout = LaunchConfiguration("controller_spawner_timeout")
-    tf_prefix = LaunchConfiguration("tf_prefix")
-
-    joint_limit_params = PathJoinSubstitution(
-        [FindPackageShare(ur_package), "config", "{{ robot_model }}", "joint_limits.yaml"]
-    )
-    kinematics_params = PathJoinSubstitution(
-        [FindPackageShare(ur_package), "config", "{{ robot_model }}", "default_kinematics.yaml"]
-    )
-    physical_params = PathJoinSubstitution(
-        [FindPackageShare(ur_package), "config", "{{ robot_model }}", "physical_parameters.yaml"]
-    )
-    visual_params = PathJoinSubstitution(
-        [FindPackageShare(ur_package), "config", "{{ robot_model }}", "visual_parameters.yaml"]
-    )
-    script_filename = PathJoinSubstitution(
-        [FindPackageShare("ur_client_library"), "resources", "external_control.urscript"]
-    )
-    input_recipe_filename = PathJoinSubstitution(
-        [FindPackageShare("ur_robot_driver"), "resources", "rtde_input_recipe.txt"]
-    )
-    output_recipe_filename = PathJoinSubstitution(
-        [FindPackageShare("ur_robot_driver"), "resources", "rtde_output_recipe.txt"]
-    )
-
-    robot_description_content = Command(
-        [
-            PathJoinSubstitution([FindExecutable(name="xacro")]),
-            " ",
-            PathJoinSubstitution([FindPackageShare("uni_pal_description"), "urdf", "robot.urdf.xacro"]),
-            " ",
-            "no_robot:=false",
-            " ",
-            "simulation_robot:=true",
-            " ",
-            "simulation_scene:=true",
-            " ",
-            "robot_ip:=",
-            "{{ robot_ip }}",
-            " ",
-            "joint_limit_params:=",
-            joint_limit_params,
-            " ",
-            "kinematics_params:=",
-            kinematics_params,
-            " ",
-            "physical_params:=",
-            physical_params,
-            " ",
-            "visual_params:=",
-            visual_params,
-            " ",
-            "name:=",
-            "{{ robot_model }}",
-            " ",
-            "script_filename:=",
-            script_filename,
-            " ",
-            "input_recipe_filename:=",
-            input_recipe_filename,
-            " ",
-            "output_recipe_filename:=",
-            output_recipe_filename,
-        ]
-    )
-    robot_description = {"robot_description": robot_description_content}
-
-    rviz_config_file = PathJoinSubstitution(
-        [FindPackageShare(description_package), "rviz", "view_robot.rviz"]
-    )
-    initial_joint_controllers = PathJoinSubstitution( #ur_robot_driver - ur_controllers.yaml
-        [FindPackageShare("ur_robot_driver"), "config", "ur_controllers.yaml"]
-    )
-    update_rate_config_file = PathJoinSubstitution(
-        [
-            FindPackageShare("ur_robot_driver"),
-            "config",
-            "{{ robot_model }}_update_rate.yaml",
-        ]
-    )
-
     ur_control_node = Node(
         package="ur_robot_driver",
         executable="ur_ros2_control_node",
@@ -404,6 +298,190 @@ def generate_launch_description():
             ParameterFile(initial_joint_controllers, allow_substs=True),
         ],
         output="screen",
+    )
+
+    robot_state_publisher_node = Node(
+        package="robot_state_publisher",
+        executable="robot_state_publisher",
+        output="both",
+        parameters=[robot_description],
+    )
+
+    rviz_node = Node(
+        package="rviz2",
+        executable="rviz2",
+        name="rviz2",
+        output="log",
+        arguments=["-d", rviz_config_file],
+    )
+
+    joint_state_broadcaster_node = Node(
+            package="controller_manager",
+            executable="spawner",
+            arguments=[
+                "joint_state_broadcaster",
+                "--controller-manager",
+                "/controller_manager",
+                "--controller-manager-timeout",
+                "10",
+            ]
+    )
+    # "joint_state_broadcaster",
+    # "io_and_status_controller",
+    # "speed_scaling_state_broadcaster",
+    # "force_torque_sensor_broadcaster",
+    # "forward_position_controller"]
+
+    nodes_to_start = [
+        ur_control_node,
+        robot_state_publisher_node,
+        joint_state_broadcaster_node,
+        rviz_node,
+    ]
+
+    return LaunchDescription(declared_arguments + nodes_to_start)
+    """,
+    "moveit_simulation": """
+from moveit_configs_utils import MoveItConfigsBuilder
+from launch import LaunchDescription
+from launch_ros.actions import Node
+from launch_param_builder import get_path
+
+def generate_launch_description():
+    # Configure robot_description
+    moveit_config = (
+        MoveItConfigsBuilder("robot", package_name="uni_pal_description")
+        .planning_scene_monitor(
+            publish_robot_description=True,
+            publish_robot_description_semantic=True
+        )
+        .to_moveit_configs()
+    )
+    rviz_config_file = get_path('uni_pal_description', 'rviz/run_move_group.rviz')
+
+    run_move_group_node = Node(
+        package='moveit_ros_move_group',
+        executable='move_group',
+        output='screen',
+        parameters=[
+            moveit_config.robot_description,
+            moveit_config.robot_description_semantic,
+            moveit_config.robot_description_kinematics,           
+            moveit_config.planning_pipelines,
+            moveit_config.trajectory_execution,
+            moveit_config.planning_scene_monitor,
+            moveit_config.joint_limits,
+            {"use_sim_time": True},
+        ],
+    )
+
+    rviz_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='log',
+        arguments=['-d', rviz_config_file],
+        parameters=[
+            moveit_config.robot_description,
+            moveit_config.robot_description_semantic,
+            moveit_config.robot_description_kinematics,
+            moveit_config.planning_pipelines,
+            moveit_config.joint_limits,
+        ],
+    )
+
+    robot_state_publisher = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        name='robot_state_publisher',
+        output='both',
+        parameters=[moveit_config.robot_description]
+    )
+
+    return LaunchDescription(
+        [
+            rviz_node,
+            robot_state_publisher,
+            run_move_group_node,
+        ]
+    )
+""",
+    "moveit_w_physical_connection": """
+from moveit_configs_utils import MoveItConfigsBuilder
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterFile
+from launch_param_builder import get_path
+    
+def generate_launch_description():
+    declared_arguments = [
+        DeclareLaunchArgument("controller_spawner_timeout",default_value="10"),
+        DeclareLaunchArgument("tf_prefix",default_value="")
+    ]
+    controller_spawner_timeout = LaunchConfiguration("controller_spawner_timeout")
+
+    moveit_config = (
+        MoveItConfigsBuilder("robot", package_name="uni_pal_description")
+        .planning_scene_monitor(
+            publish_robot_description=True,
+            publish_robot_description_semantic=True
+        )
+        .trajectory_execution()
+        .to_moveit_configs()
+    )
+    moveit_config.trajectory_execution["moveit_simple_controller_manager"]["scaled_joint_trajectory_controller"]["default"] = False
+    moveit_config.trajectory_execution["moveit_simple_controller_manager"]["joint_trajectory_controller"]["default"] = True
+    rviz_config_file = get_path('uni_pal_description', 'rviz/run_move_group.rviz')
+    initial_joint_controllers = get_path("ur_robot_driver", "config/ur_controllers.yaml")
+    update_rate_config_file = get_path("ur_robot_driver", "config/ur10_update_rate.yaml")
+
+    ur_control_node = Node(
+        package="ur_robot_driver",
+        executable="ur_ros2_control_node",
+        parameters=[
+            moveit_config.robot_description,
+            update_rate_config_file,
+            ParameterFile(initial_joint_controllers, allow_substs=True),
+        ],
+        output="screen",
+    )
+
+    robot_state_publisher_node = Node(
+        package="robot_state_publisher",
+        executable="robot_state_publisher",
+        output="both",
+        parameters=[moveit_config.robot_description],
+    )
+
+    run_move_group_node = Node(
+        package='moveit_ros_move_group',
+        executable='move_group',
+        output='screen',
+        parameters=[
+            moveit_config.robot_description,
+            moveit_config.robot_description_semantic,
+            moveit_config.robot_description_kinematics,           
+            moveit_config.planning_pipelines,
+            moveit_config.trajectory_execution,
+            moveit_config.planning_scene_monitor,
+            moveit_config.joint_limits,
+        ],
+    )
+    rviz_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='log',
+        arguments=['-d', rviz_config_file],
+        parameters=[
+            moveit_config.robot_description,
+            moveit_config.robot_description_semantic,
+            moveit_config.robot_description_kinematics,           
+            moveit_config.planning_pipelines,
+            moveit_config.joint_limits,
+        ],
     )
 
     # Spawn controllers
@@ -427,215 +505,32 @@ def generate_launch_description():
         "io_and_status_controller",
         "speed_scaling_state_broadcaster",
         "force_torque_sensor_broadcaster",
+        "joint_trajectory_controller"
     ]
     controller_spawner_inactive_names = ["forward_position_controller"]
 
     controller_spawners = [controller_spawner(name) for name in controller_spawner_names] + [
         controller_spawner(name, active=False) for name in controller_spawner_inactive_names
     ]
-    robot_state_publisher_node = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        output="both",
-        parameters=[robot_description],
-    )
-    rviz_node = Node(
-        package="rviz2",
-        executable="rviz2",
-        name="rviz2",
-        output="log",
-        arguments=["-d", rviz_config_file],
-    )
 
     nodes_to_start = [
         ur_control_node,
         robot_state_publisher_node,
         rviz_node,
+        run_move_group_node
     ] + controller_spawners
 
-    return LaunchDescription(declared_arguments + nodes_to_start)
-    """,
-    "test_demo": """
-import os
-import sys
-
-from ament_index_python.packages import get_package_share_directory
-from launch import LaunchDescription
-from launch_ros.actions import Node
-
-import xacro
-import yaml
-
-
-def load_file(package_name, file_path):
-    package_path = get_package_share_directory(package_name)
-    absolute_file_path = os.path.join(package_path, file_path)
-
-    try:
-        with open(absolute_file_path, 'r') as file:
-            return file.read()
-    except OSError:  # parent of IOError, OSError *and* WindowsError where available
-        return None
-
-
-def load_yaml(package_name, file_path):
-    package_path = get_package_share_directory(package_name)
-    absolute_file_path = os.path.join(package_path, file_path)
-
-    try:
-        with open(absolute_file_path, 'r') as file:
-            return yaml.safe_load(file)
-    except OSError:  # parent of IOError, OSError *and* WindowsError where available
-        return None
-
-
-def generate_launch_description():
-    args = []
-    length = len(sys.argv)
-    if (len(sys.argv) >= 5):
-        i = 4
-        while i < len(sys.argv):
-            args.append(sys.argv[i])
-            i = i + 1
-
-    # Configure robot_description
-    description_path = 'uni_pal_description'
-    urdf_path = 'urdf/robot.urdf.xacro'
-    moveit_config_path = 'uni_pal_description'    
-    srdf_path = 'config/{{ robot_model }}.{{ srdf_subfix }}'
-    rviz_path = '/rviz/run_move_group.rviz'     
-    
-    robot_description_config = xacro.process_file(
-        os.path.join(
-            get_package_share_directory(description_path),
-            urdf_path,
-        )
-    )
-    robot_description = {'robot_description': robot_description_config.toxml()}
-
-    # SRDF Configuration
-    robot_description_semantic_config = load_file(moveit_config_path, srdf_path)
-    robot_description_semantic = {'robot_description_semantic': robot_description_semantic_config}
-
-    # Kinematics
-    kinematics_yaml = load_yaml(moveit_config_path, 'config/kinematics.yaml')
-    robot_description_kinematics = {'robot_description_kinematics': kinematics_yaml}
-
-    # Planning Configuration
-    ompl_planning_pipeline_config = {
-        'planning_pipelines': ['ompl'],
-        'ompl': {
-            'planning_plugin': 'ompl_interface/OMPLPlanner',
-            'request_adapters': \"""default_planner_request_adapters/AddTimeOptimalParameterization default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints\""",
-            'start_state_max_bounds_error': 0.1,
-        },
-    }
-    ompl_planning_yaml = load_yaml(moveit_config_path, 'config/ompl_planning.yaml')
-    ompl_planning_pipeline_config['ompl'].update(ompl_planning_yaml)
-
-    # Trajectory Execution Configuration
-    # Controllers
-    controllers_yaml = load_yaml(moveit_config_path, 'config/controllers.yaml')
-    moveit_controllers = {'moveit_simple_controller_manager': controllers_yaml, 'moveit_controller_manager': 'moveit_simple_controller_manager/MoveItSimpleControllerManager'}
-
-    # Trajectory Execution Functionality
-    trajectory_execution = {
-        'moveit_manage_controllers': True,
-        'trajectory_execution.allowed_execution_duration_scaling': 1.2,
-        'trajectory_execution.allowed_goal_duration_margin': 0.5,
-        'trajectory_execution.allowed_start_tolerance': 0.1,
-    }
-
-    # Planning scene
-    planning_scene_monitor_parameters = {
-        'publish_planning_scene': True,
-        'publish_geometry_updates': True,
-        'publish_state_updates': True,
-        'publish_transforms_updates': True,
-    }
-
-    # Joint limits
-    joint_limits_yaml = {
-        'robot_description_planning': load_yaml(
-            moveit_config_path, 'config/joint_limits.yaml'
-        )
-    }
-
-    # Start the actual move_group node/action server
-    run_move_group_node = Node(
-        package='moveit_ros_move_group',
-        executable='move_group',
-        output='screen',
-        parameters=[
-            robot_description,
-            robot_description_semantic,
-            robot_description_kinematics,           
-            ompl_planning_pipeline_config,
-            trajectory_execution,
-            moveit_controllers,
-            planning_scene_monitor_parameters,
-            joint_limits_yaml,
-            {"use_sim_time": True},
-        ],
-    )
-
-    # RViz configuration
-    rviz_config_file = (
-        get_package_share_directory(moveit_config_path) + rviz_path
-    )
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='log',
-        arguments=['-d', rviz_config_file],
-        parameters=[
-            robot_description,
-            robot_description_semantic,
-            ompl_planning_pipeline_config,
-            robot_description_kinematics,
-            joint_limits_yaml,
-        ],
-    )
-
-    # Static TF
-    static_tf = Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        name='static_transform_publisher',
-        output='log',
-        arguments=['0.0', '0.0', '0.0', '0.0', '0.0', '0.0', 'world', 'base']
-    )
-
-    # Publish TF
-    robot_state_publisher = Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        name='robot_state_publisher',
-        output='both',
-        parameters=[robot_description]
-    )
-
-    # joint driver
-    tm_driver_node = Node(
-        package='tm_driver',
-        executable='tm_driver',
-        # name='tm_driver',
-        output='screen',
-        arguments=args
-    )
-
-    # Launching all the nodes
-    return LaunchDescription(
-        [
-            tm_driver_node,
-            rviz_node,
-            static_tf,
-            robot_state_publisher,
-            run_move_group_node,
-        ]
-    )
-  
+    return LaunchDescription(declared_arguments + nodes_to_start)      
 """
 }
+
+srdf_template = """<?xml version="1.0" encoding="UTF-8"?>
+<robot name="{{ robot_model }}">
+    <group name="{{ robot_model }}_manipulator">
+        <chain base_link="base" tip_link="flange"/>
+    </group>
+{{ group_states }}
+{{ disabled_collisions }}
+</robot>
+"""
 

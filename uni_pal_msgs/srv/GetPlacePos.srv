@@ -4,4 +4,4 @@ int32 box_no
 string pallet_side
 ---
 # Result
-geometry_msgs/PoseStamped[] trajectory
+geometry_msgs/PoseStamped place_pose
