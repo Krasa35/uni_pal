@@ -38,7 +38,7 @@ void SceneClient::publish_messages_()
     uni_pal_msgs::msg::PalParams msg = pal_params_response_.params;
     pal_params_publisher_->publish(msg);
   }
-// Service Clients
+// Service Servers
 void SceneClient::get_pal_params_(std::shared_ptr<uni_pal_msgs::srv::Empty::Request>,
                                   std::shared_ptr<uni_pal_msgs::srv::Empty::Response>)
   {
@@ -71,7 +71,7 @@ void SceneClient::set_published_transforms_(std::shared_ptr<uni_pal_msgs::srv::S
     published_transforms_ = request->transforms;
   }
 
-
+// Service Clients
 void SceneClient::pal_params_sent_service_(rclcpp::Client<uni_pal_msgs::srv::GetPalParams>::SharedFuture future)
   { 
     auto status = future.wait_for(std::chrono::seconds(1));
@@ -86,7 +86,7 @@ void SceneClient::pal_params_sent_service_(rclcpp::Client<uni_pal_msgs::srv::Get
       RCLCPP_INFO(this->get_logger(), "Service In-Progress...");
     }
   }
-
+// OTHER
 void SceneClient::TODELETE_init_transforms()
   {
     geometry_msgs::msg::TransformStamped t;

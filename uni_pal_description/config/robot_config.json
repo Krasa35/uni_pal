@@ -1,0 +1,384 @@
+{
+  "guid" : "7e88cd72-b2c9-47f5-a26f-c176eb5a0633",
+  "name" : "TEST_2LAY_28102024",
+  "created" : "2024-10-28T09:48:27.340208Z",
+  "updated" : "2024-10-28T09:51:16.218409Z",
+  "box" : {
+    "length" : 400,
+    "width" : 200,
+    "height" : 150,
+    "weight" : 2000,
+    "lengthMargin" : 0,
+    "widthMargin" : 0,
+    "ignoreBoxLimitations" : false
+  },
+  "pallet" : {
+    "palletType" : "US",
+    "length" : 1219,
+    "width" : 1016,
+    "overhangL" : 0,
+    "overhangT" : 0,
+    "overhangR" : 0,
+    "overhangB" : 0,
+    "layerPatterns" : [ {
+      "name" : "A",
+      "boxPositions" : [ {
+        "id" : 2,
+        "x" : 109,
+        "y" : 208,
+        "rotation" : 270
+      }, {
+        "id" : 3,
+        "x" : 409,
+        "y" : 108,
+        "rotation" : 180
+      }, {
+        "id" : 4,
+        "x" : 809,
+        "y" : 108,
+        "rotation" : 180
+      }, {
+        "id" : 10,
+        "x" : 409,
+        "y" : 308,
+        "rotation" : 180
+      }, {
+        "id" : 11,
+        "x" : 809,
+        "y" : 308,
+        "rotation" : 180
+      }, {
+        "id" : 6,
+        "x" : 1109,
+        "y" : 208,
+        "rotation" : 90
+      }, {
+        "id" : 1,
+        "x" : 109,
+        "y" : 608,
+        "rotation" : 270
+      }, {
+        "id" : 12,
+        "x" : 409,
+        "y" : 508,
+        "rotation" : 0
+      }, {
+        "id" : 13,
+        "x" : 809,
+        "y" : 508,
+        "rotation" : 0
+      }, {
+        "id" : 14,
+        "x" : 409,
+        "y" : 708,
+        "rotation" : 0
+      }, {
+        "id" : 15,
+        "x" : 809,
+        "y" : 708,
+        "rotation" : 0
+      }, {
+        "id" : 5,
+        "x" : 1109,
+        "y" : 608,
+        "rotation" : 90
+      }, {
+        "id" : 9,
+        "x" : 209,
+        "y" : 908,
+        "rotation" : 0
+      }, {
+        "id" : 8,
+        "x" : 609,
+        "y" : 908,
+        "rotation" : 0
+      }, {
+        "id" : 7,
+        "x" : 1009,
+        "y" : 908,
+        "rotation" : 0
+      } ],
+      "boxPositionsAlt" : [ {
+        "id" : 9,
+        "x" : 209,
+        "y" : 908,
+        "rotation" : 0
+      }, {
+        "id" : 8,
+        "x" : 609,
+        "y" : 908,
+        "rotation" : 0
+      }, {
+        "id" : 7,
+        "x" : 1009,
+        "y" : 908,
+        "rotation" : 0
+      }, {
+        "id" : 1,
+        "x" : 109,
+        "y" : 608,
+        "rotation" : 270
+      }, {
+        "id" : 14,
+        "x" : 409,
+        "y" : 708,
+        "rotation" : 0
+      }, {
+        "id" : 15,
+        "x" : 809,
+        "y" : 708,
+        "rotation" : 0
+      }, {
+        "id" : 12,
+        "x" : 409,
+        "y" : 508,
+        "rotation" : 0
+      }, {
+        "id" : 13,
+        "x" : 809,
+        "y" : 508,
+        "rotation" : 0
+      }, {
+        "id" : 5,
+        "x" : 1109,
+        "y" : 608,
+        "rotation" : 90
+      }, {
+        "id" : 2,
+        "x" : 109,
+        "y" : 208,
+        "rotation" : 270
+      }, {
+        "id" : 10,
+        "x" : 409,
+        "y" : 308,
+        "rotation" : 180
+      }, {
+        "id" : 11,
+        "x" : 809,
+        "y" : 308,
+        "rotation" : 180
+      }, {
+        "id" : 3,
+        "x" : 409,
+        "y" : 108,
+        "rotation" : 180
+      }, {
+        "id" : 4,
+        "x" : 809,
+        "y" : 108,
+        "rotation" : 180
+      }, {
+        "id" : 6,
+        "x" : 1109,
+        "y" : 208,
+        "rotation" : 90
+      } ],
+      "boxGroups" : [ ],
+      "boxGroupsAlt" : [ ],
+      "gripperSections" : [ ],
+      "gripperSectionsAlt" : [ ],
+      "manualOrder" : false,
+      "manualOrderAlt" : false
+    }, {
+      "name" : "B",
+      "boxPositions" : [ {
+        "id" : 7,
+        "x" : 209,
+        "y" : 108,
+        "rotation" : 180
+      }, {
+        "id" : 8,
+        "x" : 609,
+        "y" : 108,
+        "rotation" : 180
+      }, {
+        "id" : 9,
+        "x" : 1009,
+        "y" : 108,
+        "rotation" : 180
+      }, {
+        "id" : 5,
+        "x" : 109,
+        "y" : 408,
+        "rotation" : 270
+      }, {
+        "id" : 15,
+        "x" : 409,
+        "y" : 308,
+        "rotation" : 180
+      }, {
+        "id" : 14,
+        "x" : 809,
+        "y" : 308,
+        "rotation" : 180
+      }, {
+        "id" : 13,
+        "x" : 409,
+        "y" : 508,
+        "rotation" : 180
+      }, {
+        "id" : 12,
+        "x" : 809,
+        "y" : 508,
+        "rotation" : 180
+      }, {
+        "id" : 1,
+        "x" : 1109,
+        "y" : 408,
+        "rotation" : 90
+      }, {
+        "id" : 6,
+        "x" : 109,
+        "y" : 808,
+        "rotation" : 270
+      }, {
+        "id" : 11,
+        "x" : 409,
+        "y" : 708,
+        "rotation" : 0
+      }, {
+        "id" : 10,
+        "x" : 809,
+        "y" : 708,
+        "rotation" : 0
+      }, {
+        "id" : 4,
+        "x" : 409,
+        "y" : 908,
+        "rotation" : 0
+      }, {
+        "id" : 3,
+        "x" : 809,
+        "y" : 908,
+        "rotation" : 0
+      }, {
+        "id" : 2,
+        "x" : 1109,
+        "y" : 808,
+        "rotation" : 90
+      } ],
+      "boxPositionsAlt" : [ {
+        "id" : 6,
+        "x" : 109,
+        "y" : 808,
+        "rotation" : 270
+      }, {
+        "id" : 4,
+        "x" : 409,
+        "y" : 908,
+        "rotation" : 0
+      }, {
+        "id" : 3,
+        "x" : 809,
+        "y" : 908,
+        "rotation" : 0
+      }, {
+        "id" : 11,
+        "x" : 409,
+        "y" : 708,
+        "rotation" : 0
+      }, {
+        "id" : 10,
+        "x" : 809,
+        "y" : 708,
+        "rotation" : 0
+      }, {
+        "id" : 2,
+        "x" : 1109,
+        "y" : 808,
+        "rotation" : 90
+      }, {
+        "id" : 5,
+        "x" : 109,
+        "y" : 408,
+        "rotation" : 270
+      }, {
+        "id" : 13,
+        "x" : 409,
+        "y" : 508,
+        "rotation" : 180
+      }, {
+        "id" : 12,
+        "x" : 809,
+        "y" : 508,
+        "rotation" : 180
+      }, {
+        "id" : 15,
+        "x" : 409,
+        "y" : 308,
+        "rotation" : 180
+      }, {
+        "id" : 14,
+        "x" : 809,
+        "y" : 308,
+        "rotation" : 180
+      }, {
+        "id" : 1,
+        "x" : 1109,
+        "y" : 408,
+        "rotation" : 90
+      }, {
+        "id" : 7,
+        "x" : 209,
+        "y" : 108,
+        "rotation" : 180
+      }, {
+        "id" : 8,
+        "x" : 609,
+        "y" : 108,
+        "rotation" : 180
+      }, {
+        "id" : 9,
+        "x" : 1009,
+        "y" : 108,
+        "rotation" : 180
+      } ],
+      "boxGroups" : [ ],
+      "boxGroupsAlt" : [ ],
+      "gripperSections" : [ ],
+      "gripperSectionsAlt" : [ ],
+      "manualOrder" : false,
+      "manualOrderAlt" : false
+    }, {
+      "name" : "Z",
+      "boxPositions" : [ ],
+      "boxPositionsAlt" : [ ],
+      "boxGroups" : [ ],
+      "boxGroupsAlt" : [ ],
+      "gripperSections" : [ ],
+      "gripperSectionsAlt" : [ ],
+      "manualOrder" : false,
+      "manualOrderAlt" : false
+    } ],
+    "layers" : [ {
+      "number" : 1,
+      "layerPattern" : "A"
+    }, {
+      "number" : 2,
+      "layerPattern" : "B"
+    }, {
+      "number" : 3,
+      "layerPattern" : "A"
+    }, {
+      "number" : 4,
+      "layerPattern" : "B"
+    }, {
+      "number" : 5,
+      "layerPattern" : "A"
+    }, {
+      "number" : 6,
+      "layerPattern" : "B"
+    } ],
+    "interlayerSheetPositions" : [ false, false, false, false, false, false, false ],
+    "height" : 145
+  },
+  "programSettings" : {
+    "robotType" : "RC10_UR",
+    "approachAngle" : 45,
+    "conveyorConfiguration" : "CENTER_RIGHT",
+    "boxOrientationOnConveyor" : "SHORT_SIDE_LEADING",
+    "labelPosition" : "LEFT",
+    "additionalPedestalHeight" : 700
+  }
+}

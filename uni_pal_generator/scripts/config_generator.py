@@ -1,6 +1,6 @@
 import yaml
 import os, sys
-from templates import urdf, launch, srdf
+from templates import urdf, launch, srdf, predefined
 
 config_file_path = '/home/ws/config.yaml'
 
@@ -55,3 +55,8 @@ launch.copy_config(uni_pal_description_dir, robot['type'], robot['model'])
 
 # SRDF generation
 srdf.start_srdf(srdf_file_path, robot['model'], robot['specific'], srdf_config, combined_elements)
+
+# Copy Robot Config file and create predefined values file
+uni_pal_pylib_dir = "/home/ws/src/uni_pal_pylib/utils/uni_pal_pylib"
+predefined.copy_json_file(os.path.join(config_dir, 'robot_config.json'), system['json_path'])
+predefined.start_predefined(os.path.join(uni_pal_pylib_dir, 'predefined.py'), robot['data'], robot['type'])

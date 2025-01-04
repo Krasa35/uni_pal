@@ -534,3 +534,36 @@ srdf_template = """<?xml version="1.0" encoding="UTF-8"?>
 </robot>
 """
 
+predefined_template = """from dataclasses import dataclass
+from typing import List
+
+@dataclass
+class data:
+    max_reach: int
+    gripper_width: int
+    gripper_length: int
+    gripper_height: int
+    gripper_offset: int
+    frames: List[str]
+    eefs: List[str]
+    joint_names: List[str]
+    link_names: List[str]
+    flange_name: str
+    arm_group_name: str
+    planning_groups: List[str]
+
+Data = data(
+    max_reach={{ max_reach }},
+    gripper_width={{ gripper_width }},
+    gripper_length={{ gripper_length }},
+    gripper_height={{ gripper_height }},
+    gripper_offset={{ gripper_offset }},
+    frames={{ frames }},
+    eefs={{ eefs }},
+    joint_names={{ joint_names }},
+    link_names={{ link_names }},
+    flange_name="{{ flange_name }}",
+    arm_group_name="{{ arm_group_name }}",
+    planning_groups={{ planning_groups }}
+)
+"""

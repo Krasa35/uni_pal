@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
+import os
 import json
 import rclpy
 from rclpy.node import Node
+from ament_index_python.packages import get_package_share_directory
 from uni_pal_msgs.srv import GetPalParams
 from uni_pal_msgs.srv import GetPlacePos
 from uni_pal_pylib.utils import create_pose_stamped, print_pose_stamped
+from uni_pal_pylib.predefined import Data
 from dataclasses import dataclass, field
 from typing import List
 
@@ -81,9 +84,10 @@ class ServiceServer(Node):
 
     def __init__(self):
         super().__init__('read_json_node')
-        self.declare_parameter('config_path', '/home/ws/.github/Company_data/RobotConfig/TEST_2LAY_28102024/P_T_2410280951_1219X1016_90.json')
+        package_path = get_package_share_directory('uni_pal_description')
+        file_path = os.path.join(package_path, 'config/robot_config.json')
+        self.declare_parameter('config_path', file_path)
         config_path = self.get_parameter('config_path').get_parameter_value().string_value
-        
         # file_path = '/home/ws/.github/Company_data/RobotConfig/TEST_28102024_RIGHT/P_T_2410301058_1219X1016_48.json'  # Replace with the path to your JSON file
         # file_path = '/home/ws/.github/Company_data/RobotConfig/TEST_28102024/P_T_2410280951_1219X1016_48.json'  # Replace with the path to your JSON file
         file_path = config_path  # Replace with the path to your JSON file
