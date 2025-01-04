@@ -11,6 +11,11 @@ find_package(sensor_msgs  REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/BoxInfo.msg"
+  "msg/PalletInfo.msg"
+  "msg/ProgramSettings.msg"
+  "msg/PalParams.msg"
+  "msg/RobotSpecific.msg"
   "msg/RobotStaticInfo.msg"
   "msg/RobotDynamicInfo.msg"
   "msg/RobotState.msg"
@@ -24,6 +29,9 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/GetPalParams.srv"
   "srv/GetPlacePos.srv"
   "srv/SetFrame.srv"
+  "srv/Empty.srv"
+  "srv/GetPublishedTransforms.srv"
+  "srv/SetPublishedTransforms.srv"
   DEPENDENCIES geometry_msgs sensor_msgs 
 )
 

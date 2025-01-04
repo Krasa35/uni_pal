@@ -14,6 +14,8 @@ endif()
 # find dependencies
 set(THIS_PACKAGE_INCLUDE_DEPENDS
   tf2
+  tf2_ros
+  tf2_geometry_msgs
   rclpy
   rclcpp
   std_msgs
@@ -22,6 +24,7 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   geometry_msgs
   ament_cmake
   ur
+  ur_msgs
 )
 
 foreach(Dependency IN ITEMS ${THIS_PACKAGE_INCLUDE_DEPENDS})
@@ -38,8 +41,16 @@ install(PROGRAMS
 add_executable(robot_client src/robot_client.cpp)
 ament_target_dependencies(robot_client uni_pal_cpplib)
 
+add_executable(scene_client src/scene_client.cpp)
+ament_target_dependencies(scene_client uni_pal_cpplib)
+
+add_executable(robot_republisher src/robot_republisher.cpp)
+ament_target_dependencies(robot_republisher uni_pal_cpplib)
+
 install(TARGETS
   robot_client
+  scene_client
+  robot_republisher
   DESTINATION lib/${PROJECT_NAME})
 
 # Install launch files.

@@ -55,6 +55,17 @@ def generate_launch_description():
                 "10",
             ]
     )
+    io_state_broadcaster_node = Node(
+            package="controller_manager",
+            executable="spawner",
+            arguments=[
+                "io_and_status_controller",
+                "--controller-manager",
+                "/controller_manager",
+                "--controller-manager-timeout",
+                "10",
+            ]
+    )
     # "joint_state_broadcaster",
     # "io_and_status_controller",
     # "speed_scaling_state_broadcaster",
@@ -65,6 +76,7 @@ def generate_launch_description():
         ur_control_node,
         robot_state_publisher_node,
         joint_state_broadcaster_node,
+        io_state_broadcaster_node,
         rviz_node,
     ]
 

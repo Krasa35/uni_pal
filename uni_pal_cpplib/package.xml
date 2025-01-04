@@ -13,6 +13,8 @@
   <depend>rclcpp</depend>
   <depend>tf2</depend>
   <depend>tf_transformations</depend>
+  <depend>uni_pal_msgs</depend>
+  <depend>ur_msgs</depend>
 
  <export>
    <build_type>ament_cmake</build_type>

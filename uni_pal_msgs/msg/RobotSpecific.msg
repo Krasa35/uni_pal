@@ -1,0 +1,2 @@
+uni_pal_msgs/RobotAnalog analog
+uni_pal_msgs/RobotDigital digital

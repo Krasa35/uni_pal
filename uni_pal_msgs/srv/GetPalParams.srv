@@ -1,23 +1,4 @@
 # Request
 ---
 # Result
-uint8 boxes_per_layer
-uint8 layers_per_pallet
-bool[] interlayers
-float32 box_width
-float32 box_length
-float32 box_height
-float32 box_weight
-float32 pallet_width
-float32 pallet_length
-float32 pallet_height
-float32 pallet_overhang_l
-float32 pallet_overhang_t
-float32 pallet_overhang_r
-float32 pallet_overhang_b
-string robot_type
-float32 approach_angle
-string conveyor_configuration
-string box_orientation
-string label_position
-float32 additional_pedestal_height
+uni_pal_msgs/PalParams params

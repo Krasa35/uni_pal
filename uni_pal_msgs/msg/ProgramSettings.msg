@@ -1,0 +1,6 @@
+string robot_type
+string conveyor_configuration
+string box_orientation
+string label_position
+float32 additional_pedestal_height
+float32 approach_angle

@@ -174,45 +174,48 @@ class ServiceServer(Node):
     def handle_palletize_parameters(self, request, response: GetPalParams.Response):
         self.get_logger().info('Handling request...')
 
-        response.boxes_per_layer = self.json_data.boxes_per_layer# Assuming all layers have the same number of boxes
-        response.layers_per_pallet = self.json_data.layers_per_pallet
-        response.interlayers = self.json_data.pallet.interlayer
-        response.box_width = float(self.json_data.box.width)
-        response.box_length = float(self.json_data.box.length)
-        response.box_height = float(self.json_data.box.height)
-        response.box_weight = float(self.json_data.box.weight)
-        response.pallet_width = float(self.json_data.pallet.width)
-        response.pallet_length = float(self.json_data.pallet.length)
-        response.pallet_height = float(self.json_data.pallet.height)
-        response.pallet_overhang_l = float(self.json_data.pallet.overhangL)
-        response.pallet_overhang_t = float(self.json_data.pallet.overhangT)
-        response.pallet_overhang_r = float(self.json_data.pallet.overhangR)
-        response.pallet_overhang_b = float(self.json_data.pallet.overhangB)
-        response.robot_type = self.json_data.programsettings[0].robotType
-        response.conveyor_configuration = self.json_data.programsettings[0].conveyorConfiguration
-        response.box_orientation = self.json_data.programsettings[0].boxOrientationOnConveyor
-        response.label_position = self.json_data.programsettings[0].labelPosition
-        response.additional_pedestal_height = float(self.json_data.programsettings[0].additionalPedestalHeight)
-        response.approach_angle = float(self.json_data.programsettings[0].approachAngle)
+        response.params.boxes_per_layer = self.json_data.boxes_per_layer
+        response.params.layers_per_pallet = self.json_data.layers_per_pallet
+        response.params.interlayers = self.json_data.pallet.interlayer
 
-        self.get_logger().info(f"Boxes per layer: {response.boxes_per_layer}")
-        self.get_logger().info(f"Layers per pallet: {response.layers_per_pallet}")
-        self.get_logger().info(f"Box width: {response.box_width}")
-        self.get_logger().info(f"Box length: {response.box_length}")
-        self.get_logger().info(f"Box height: {response.box_height}")
-        self.get_logger().info(f"Box weight: {response.box_weight}")
-        self.get_logger().info(f"Pallet width: {response.pallet_width}")
-        self.get_logger().info(f"Pallet length: {response.pallet_length}")
-        self.get_logger().info(f"Pallet height: {response.pallet_height}")
-        self.get_logger().info(f"Pallet overhang L: {response.pallet_overhang_l}")
-        self.get_logger().info(f"Pallet overhang T: {response.pallet_overhang_t}")
-        self.get_logger().info(f"Pallet overhang R: {response.pallet_overhang_r}")
-        self.get_logger().info(f"Pallet overhang B: {response.pallet_overhang_b}")
-        self.get_logger().info(f"Robot type: {response.robot_type}")
-        self.get_logger().info(f"Conveyor configuration: {response.conveyor_configuration}")
-        self.get_logger().info(f"Box orientation: {response.box_orientation}")
-        self.get_logger().info(f"Label position: {response.label_position}")
-        self.get_logger().info(f"Additional pedestal height: {response.additional_pedestal_height}")
+        response.params.box.width = float(self.json_data.box.width)
+        response.params.box.length = float(self.json_data.box.length)
+        response.params.box.height = float(self.json_data.box.height)
+        response.params.box.weight = float(self.json_data.box.weight)
+
+        response.params.pallet.width = float(self.json_data.pallet.width)
+        response.params.pallet.length = float(self.json_data.pallet.length)
+        response.params.pallet.height = float(self.json_data.pallet.height)
+        response.params.pallet.overhang_l = float(self.json_data.pallet.overhangL)
+        response.params.pallet.overhang_t = float(self.json_data.pallet.overhangT)
+        response.params.pallet.overhang_r = float(self.json_data.pallet.overhangR)
+        response.params.pallet.overhang_b = float(self.json_data.pallet.overhangB)
+
+        response.params.programsettings.robot_type = self.json_data.programsettings[0].robotType
+        response.params.programsettings.conveyor_configuration = self.json_data.programsettings[0].conveyorConfiguration
+        response.params.programsettings.box_orientation = self.json_data.programsettings[0].boxOrientationOnConveyor
+        response.params.programsettings.label_position = self.json_data.programsettings[0].labelPosition
+        response.params.programsettings.additional_pedestal_height = float(self.json_data.programsettings[0].additionalPedestalHeight)
+        response.params.programsettings.approach_angle = float(self.json_data.programsettings[0].approachAngle)
+
+        self.get_logger().info(f"Boxes per layer: {response.params.boxes_per_layer}")
+        self.get_logger().info(f"Layers per pallet: {response.params.layers_per_pallet}")
+        self.get_logger().info(f"Box width: {response.params.box.width}")
+        self.get_logger().info(f"Box length: {response.params.box.length}")
+        self.get_logger().info(f"Box height: {response.params.box.height}")
+        self.get_logger().info(f"Box weight: {response.params.box.weight}")
+        self.get_logger().info(f"Pallet width: {response.params.pallet.width}")
+        self.get_logger().info(f"Pallet length: {response.params.pallet.length}")
+        self.get_logger().info(f"Pallet height: {response.params.pallet.height}")
+        self.get_logger().info(f"Pallet overhang L: {response.params.pallet.overhang_l}")
+        self.get_logger().info(f"Pallet overhang T: {response.params.pallet.overhang_t}")
+        self.get_logger().info(f"Pallet overhang R: {response.params.pallet.overhang_r}")
+        self.get_logger().info(f"Pallet overhang B: {response.params.pallet.overhang_b}")
+        self.get_logger().info(f"Robot type: {response.params.programsettings.robot_type}")
+        self.get_logger().info(f"Conveyor configuration: {response.params.programsettings.conveyor_configuration}")
+        self.get_logger().info(f"Box orientation: {response.params.programsettings.box_orientation}")
+        self.get_logger().info(f"Label position: {response.params.programsettings.label_position}")
+        self.get_logger().info(f"Additional pedestal height: {response.params.programsettings.additional_pedestal_height}")
 
         return response
 
