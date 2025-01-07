@@ -11,10 +11,12 @@
 #include "tf2_ros/transform_listener.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 // #include "uni_pal_description/config/"
+#include "uni_pal_msgs/srv/get_config_params.hpp"
 #include "uni_pal_msgs/msg/robot_static_info.hpp"
 #include "uni_pal_msgs/msg/robot_dynamic_info.hpp"
 #include "uni_pal_msgs/msg/robot_specific.hpp"
 #include "uni_pal_msgs/msg/robot_rpy.hpp"
+#include "uni_pal_msgs/msg/config_params.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "std_msgs/msg/string.hpp"
 
@@ -42,6 +44,11 @@ class RobotClient : public rclcpp::Node
     rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_state_subscriber_;
     std::unique_ptr<tf2_ros::Buffer> tf_buffer;
     std::shared_ptr<tf2_ros::TransformListener> tf_listener_{nullptr};
+    // Service clients
+    void get_config_params_();
+    void config_params_sent_service_(rclcpp::Client<uni_pal_msgs::srv::GetConfigParams>::SharedFuture);
+    rclcpp::Client<uni_pal_msgs::srv::GetConfigParams>::SharedPtr config_params_client_;
+    bool got_config_params_;
     // Process methods
     geometry_msgs::msg::Pose get_pose_(const geometry_msgs::msg::TransformStamped&);
     double get_distance_(const geometry_msgs::msg::TransformStamped&);

@@ -4,9 +4,8 @@ import json
 import rclpy
 from rclpy.node import Node
 from ament_index_python.packages import get_package_share_directory
-from uni_pal_msgs.srv import GetPalParams
-from uni_pal_msgs.srv import GetPlacePos
-from uni_pal_pylib.utils import create_pose_stamped, print_pose_stamped
+from uni_pal_msgs.srv import GetPalParams, GetPlacePos, GetConfigParams
+from uni_pal_pylib.utils import create_pose_stamped
 from uni_pal_pylib.predefined import Data
 from dataclasses import dataclass, field
 from typing import List
@@ -88,20 +87,23 @@ class ServiceServer(Node):
         file_path = os.path.join(package_path, 'config/robot_config.json')
         self.declare_parameter('config_path', file_path)
         config_path = self.get_parameter('config_path').get_parameter_value().string_value
-        # file_path = '/home/ws/.github/Company_data/RobotConfig/TEST_28102024_RIGHT/P_T_2410301058_1219X1016_48.json'  # Replace with the path to your JSON file
-        # file_path = '/home/ws/.github/Company_data/RobotConfig/TEST_28102024/P_T_2410280951_1219X1016_48.json'  # Replace with the path to your JSON file
         file_path = config_path  # Replace with the path to your JSON file
         self.json_data: JsonData = self.read_json_file(file_path)
-        self.get_logger().info('PickPlaceTrajectory action server has been started.')
         self._service = self.create_service(
             GetPlacePos,
             'read_json_node/get_box_position',
             self.find_box_position)
+        self.get_logger().info('/read_json_node/get_box_position service server has been started.')
         self._service = self.create_service(
             GetPalParams,
             'read_json_node/get_pallet_params',
             self.handle_palletize_parameters)
-        self.get_logger().info('PalletizeParameters service server has been started.')
+        self.get_logger().info('/read_json_node/get_pallet_params service server has been started.')
+        self._service = self.create_service(
+            GetConfigParams,
+            'read_json_node/get_config_params',
+            self.handle_config_parameters)
+        self.get_logger().info('/read_json_node/get_config_params service server has been started.')
 
     def read_json_file(self, file_path: str) -> JsonData:
         with open(file_path, 'r') as file:
@@ -140,10 +142,9 @@ class ServiceServer(Node):
         return json_data
 
     def find_box_position(self, request: GetPlacePos.Request, response: GetPlacePos.Response):
-
+        self.get_logger().info('Handling /read_json_node/get_box_position request...')
         # Find the layer pattern for the given layer number
         layer_pattern = None
-        self.get_logger().info(f'Got request for /get_box_position service: \n\tlayer_no: {request.layer_no}\n\tbox_no: {request.box_no}\n\tpallet_side: {request.pallet_side}')
         for layer in self.json_data.pallet.layers:
             if layer.number == request.layer_no:
                 layer_pattern = layer.layerPattern
@@ -172,21 +173,18 @@ class ServiceServer(Node):
                             rpy_=[0.0, 0.0, 0.0], 
                             seconds_=0,
                             frame_id_="base_link")
-        self.get_logger().info(f'Processed request for /get_box_position service: \nBox:{print_pose_stamped(response.place_pose)}')
         return response
 
     def handle_palletize_parameters(self, request, response: GetPalParams.Response):
-        self.get_logger().info('Handling request...')
+        self.get_logger().info('Handling /read_json_node/get_pallet_params request...')
 
         response.params.boxes_per_layer = self.json_data.boxes_per_layer
         response.params.layers_per_pallet = self.json_data.layers_per_pallet
         response.params.interlayers = self.json_data.pallet.interlayer
-
         response.params.box.width = float(self.json_data.box.width)
         response.params.box.length = float(self.json_data.box.length)
         response.params.box.height = float(self.json_data.box.height)
         response.params.box.weight = float(self.json_data.box.weight)
-
         response.params.pallet.width = float(self.json_data.pallet.width)
         response.params.pallet.length = float(self.json_data.pallet.length)
         response.params.pallet.height = float(self.json_data.pallet.height)
@@ -194,7 +192,6 @@ class ServiceServer(Node):
         response.params.pallet.overhang_t = float(self.json_data.pallet.overhangT)
         response.params.pallet.overhang_r = float(self.json_data.pallet.overhangR)
         response.params.pallet.overhang_b = float(self.json_data.pallet.overhangB)
-
         response.params.programsettings.robot_type = self.json_data.programsettings[0].robotType
         response.params.programsettings.conveyor_configuration = self.json_data.programsettings[0].conveyorConfiguration
         response.params.programsettings.box_orientation = self.json_data.programsettings[0].boxOrientationOnConveyor
@@ -202,24 +199,22 @@ class ServiceServer(Node):
         response.params.programsettings.additional_pedestal_height = float(self.json_data.programsettings[0].additionalPedestalHeight)
         response.params.programsettings.approach_angle = float(self.json_data.programsettings[0].approachAngle)
 
-        self.get_logger().info(f"Boxes per layer: {response.params.boxes_per_layer}")
-        self.get_logger().info(f"Layers per pallet: {response.params.layers_per_pallet}")
-        self.get_logger().info(f"Box width: {response.params.box.width}")
-        self.get_logger().info(f"Box length: {response.params.box.length}")
-        self.get_logger().info(f"Box height: {response.params.box.height}")
-        self.get_logger().info(f"Box weight: {response.params.box.weight}")
-        self.get_logger().info(f"Pallet width: {response.params.pallet.width}")
-        self.get_logger().info(f"Pallet length: {response.params.pallet.length}")
-        self.get_logger().info(f"Pallet height: {response.params.pallet.height}")
-        self.get_logger().info(f"Pallet overhang L: {response.params.pallet.overhang_l}")
-        self.get_logger().info(f"Pallet overhang T: {response.params.pallet.overhang_t}")
-        self.get_logger().info(f"Pallet overhang R: {response.params.pallet.overhang_r}")
-        self.get_logger().info(f"Pallet overhang B: {response.params.pallet.overhang_b}")
-        self.get_logger().info(f"Robot type: {response.params.programsettings.robot_type}")
-        self.get_logger().info(f"Conveyor configuration: {response.params.programsettings.conveyor_configuration}")
-        self.get_logger().info(f"Box orientation: {response.params.programsettings.box_orientation}")
-        self.get_logger().info(f"Label position: {response.params.programsettings.label_position}")
-        self.get_logger().info(f"Additional pedestal height: {response.params.programsettings.additional_pedestal_height}")
+        return response
+
+    def handle_config_parameters(self, request, response: GetConfigParams.Response):
+        self.get_logger().info('Handling /read_json_node/get_config_params request...')
+        response.config.max_reach = Data.max_reach
+        response.config.gripper_width = Data.gripper_width
+        response.config.gripper_length = Data.gripper_length
+        response.config.gripper_height = Data.gripper_height
+        response.config.gripper_offset = Data.gripper_offset
+        response.config.frames = Data.frames
+        response.config.eefs = Data.eefs
+        response.config.joint_names = Data.joint_names
+        response.config.link_names = Data.link_names
+        response.config.flange_name = Data.flange_name
+        response.config.arm_group_name = Data.arm_group_name
+        response.config.planning_groups = Data.planning_groups
 
         return response
 

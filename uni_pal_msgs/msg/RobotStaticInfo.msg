@@ -1,2 +1,2 @@
-uni_pal_msgs/RobotData data
 uni_pal_msgs/RobotPredefined predefined
+uni_pal_msgs/ConfigParams config

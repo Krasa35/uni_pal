@@ -21,7 +21,7 @@
   <xacro:arg name="safety_k_position" default="20"/>
   <!-- ros2_control related parameters -->
   <xacro:arg name="headless_mode" default="false" />
-  <xacro:arg name="robot_ip" default="192.168.56.101" />
+  <xacro:arg name="robot_ip" default="192.168.56.100" />
   <xacro:arg name="script_filename" default="$(find ur_client_library)/resources/external_control.urscript"/>
   <xacro:arg name="output_recipe_filename" default="$(find ur_robot_driver)/resources/rtde_output_recipe.txt"/>
   <xacro:arg name="input_recipe_filename" default="$(find ur_robot_driver)/resources/rtde_input_recipe.txt"/>
