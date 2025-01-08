@@ -51,10 +51,10 @@ print(f"URDF file generated at {main_urdf_file_path}")
 # launch file generation
 urdf.delete_old_files(config_dir, os.path.join(config_dir, '.ignore'))
 launch.start_launch(launch_file_path, system['launch_type'], robot['model'], robot['ip'])
-launch.copy_config(uni_pal_description_dir, robot['type'], robot['model'])
+launch.copy_config(uni_pal_description_dir, robot['type'], robot['model'], robot['data']['arm_group_name'])
 
 # SRDF generation
-srdf.start_srdf(srdf_file_path, robot['model'], robot['specific'], srdf_config, combined_elements)
+srdf.start_srdf(srdf_file_path, robot['model'], robot['specific'], srdf_config, combined_elements, robot['data']['arm_group_name'])
 
 # Copy Robot Config file and create predefined values file
 uni_pal_pylib_dir = "/home/ws/src/uni_pal_pylib/utils/uni_pal_pylib"

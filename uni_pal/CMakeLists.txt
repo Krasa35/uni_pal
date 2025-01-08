@@ -25,6 +25,7 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   ament_cmake
   ur
   ur_msgs
+  moveit_task_constructor_core
 )
 
 foreach(Dependency IN ITEMS ${THIS_PACKAGE_INCLUDE_DEPENDS})
@@ -47,10 +48,14 @@ ament_target_dependencies(scene_client uni_pal_cpplib)
 add_executable(robot_republisher src/robot_republisher.cpp)
 ament_target_dependencies(robot_republisher uni_pal_cpplib)
 
+add_executable(task_client src/task_client.cpp)
+ament_target_dependencies(task_client uni_pal_cpplib)
+
 install(TARGETS
   robot_client
   scene_client
   robot_republisher
+  task_client
   DESTINATION lib/${PROJECT_NAME})
 
 # Install launch files.

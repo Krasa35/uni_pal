@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot name="ur10">
-    <group name="ur10_manipulator">
+    <group name="ur_manipulator">
         <chain base_link="base" tip_link="flange"/>
     </group>
-    <group_state name="extended" group="ur10_manipulator">
+    <group_state name="extended" group="ur_manipulator">
         <joint name="shoulder_pan_joint" value="0.0"/>
         <joint name="shoulder_lift_joint" value="0.0"/>
         <joint name="elbow_joint" value="0.0"/>
@@ -11,25 +11,25 @@
         <joint name="wrist_2_joint" value="0.0"/>
         <joint name="wrist_3_joint" value="0.0"/>
     </group_state>
-    <group_state name="home" group="ur10_manipulator">
-        <joint name="shoulder_pan_joint" value="0.0"/>
-        <joint name="shoulder_lift_joint" value="0.0"/>
-        <joint name="elbow_joint" value="1.57"/>
-        <joint name="wrist_1_joint" value="0.0"/>
-        <joint name="wrist_2_joint" value="1.57"/>
-        <joint name="wrist_3_joint" value="0.0"/>
-    </group_state>
-    <group_state name="home_left" group="ur10_manipulator">
-        <joint name="shoulder_pan_joint" value="1.57"/>
-        <joint name="shoulder_lift_joint" value="0.0"/>
-        <joint name="elbow_joint" value="1.57"/>
-        <joint name="wrist_1_joint" value="0.0"/>
-        <joint name="wrist_2_joint" value="1.57"/>
-        <joint name="wrist_3_joint" value="0.0"/>
-    </group_state>
-    <group_state name="home_right" group="ur10_manipulator">
+    <group_state name="home" group="ur_manipulator">
         <joint name="shoulder_pan_joint" value="-1.57"/>
-        <joint name="shoulder_lift_joint" value="0.0"/>
+        <joint name="shoulder_lift_joint" value="-1.57"/>
+        <joint name="elbow_joint" value="1.57"/>
+        <joint name="wrist_1_joint" value="0.0"/>
+        <joint name="wrist_2_joint" value="1.57"/>
+        <joint name="wrist_3_joint" value="0.0"/>
+    </group_state>
+    <group_state name="home_left" group="ur_manipulator">
+        <joint name="shoulder_pan_joint" value="0.0"/>
+        <joint name="shoulder_lift_joint" value="-1.57"/>
+        <joint name="elbow_joint" value="1.57"/>
+        <joint name="wrist_1_joint" value="0.0"/>
+        <joint name="wrist_2_joint" value="1.57"/>
+        <joint name="wrist_3_joint" value="0.0"/>
+    </group_state>
+    <group_state name="home_right" group="ur_manipulator">
+        <joint name="shoulder_pan_joint" value="-3.14"/>
+        <joint name="shoulder_lift_joint" value="-1.57"/>
         <joint name="elbow_joint" value="1.57"/>
         <joint name="wrist_1_joint" value="0.0"/>
         <joint name="wrist_2_joint" value="1.57"/>

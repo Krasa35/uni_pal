@@ -1,11 +1,11 @@
 from jinja2 import Template
 from templates import macros
 
-def start_srdf(file_path, robot_model_, robot_specific, srdf_config, accessories):
+def start_srdf(file_path, robot_model_, robot_specific, srdf_config, accessories, arm_group_name_):
     accessories.update(robot_specific['links'])
     group_states_ = ""
     for state_name, joints in srdf_config['group_states']['manipulator'].items():
-        group_states_ += f'    <group_state name="{state_name}" group="ur10_manipulator">\n'
+        group_states_ += f'    <group_state name="{state_name}" group="{arm_group_name_}">\n'
         for joint, value in zip(robot_specific['joints'].values(), joints):
             group_states_ += f'        <joint name="{joint}" value="{value}"/>\n'
         group_states_ += '    </group_state>\n'
@@ -25,6 +25,7 @@ def start_srdf(file_path, robot_model_, robot_specific, srdf_config, accessories
 
     template = Template(macros.srdf_template)
     srdf_content = template.render(
+        arm_group_name=arm_group_name_,
         robot_model=robot_model_,
         group_states=group_states_,
         disabled_collisions=disabled_collisions_,

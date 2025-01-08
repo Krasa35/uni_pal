@@ -16,7 +16,16 @@ def start_launch(file_path, launch_type, robot_model_, robot_ip_="xxx.xxx.xxx.xx
       launch_file.write(launch_content)
       print(f"Launch file generated at {file_path}")
   
-def copy_config(target_dir, robot_type, robot_model):
+def replace_group_name_in_file(file_path, arm_group_name_previous, replacement):
+    with open(file_path, 'r') as file:
+        content = file.read()
+
+    content = content.replace(arm_group_name_previous, replacement)
+
+    with open(file_path, 'w') as file:
+        file.write(content)
+
+def copy_config(target_dir, robot_type, robot_model, arm_group_name):
     config_dir = os.path.join(target_dir, 'config')
     config_package = 'ur_description' if robot_type == "universal_robots" else robot_model + '_moveit_config' if robot_type == "techman_robots" else "NOT SUPPORTED"
     try:
@@ -32,6 +41,9 @@ def copy_config(target_dir, robot_type, robot_model):
           insert_content(os.path.join(config_dir, 'ompl_planning.yaml'), macros.universal_robots['to_ompl'],0)
           indent_content(os.path.join(config_dir, 'moveit_controllers.yaml'))
           insert_content(os.path.join(config_dir, 'moveit_controllers.yaml'), macros.universal_robots['to_controllers'],0)
+          replace_group_name_in_file(os.path.join(config_dir, 'ompl_planning.yaml'), 'ur_manipulator', arm_group_name)
+          replace_group_name_in_file(os.path.join(config_dir, 'kinematics.yaml'), 'ur_manipulator', arm_group_name)
+          replace_group_name_in_file(os.path.join(config_dir, 'ur_servo.yaml'), 'ur_manipulator', arm_group_name)
         print(f"Copied files from:\n\t{config_source_path}\nto:\n\t{config_dir}")
     except subprocess.CalledProcessError as e:
         print(f"Error finding {config_package} package: {e}")

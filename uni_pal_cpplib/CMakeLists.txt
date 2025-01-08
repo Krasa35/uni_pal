@@ -6,6 +6,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
+  moveit_task_constructor_core
   ament_cmake
   rclcpp
   std_msgs
@@ -21,14 +22,20 @@ endforeach()
 
 include_directories(include)
 
-add_library(${PROJECT_NAME} src/RobotClient.cpp src/SceneClient.cpp src/URRepublisher.cpp)
+add_library(${PROJECT_NAME} 
+  src/RobotClient.cpp 
+  src/SceneClient.cpp 
+  src/URRepublisher.cpp 
+  src/TaskClient.cpp
+  src/tasks/create_demo_task_.cpp
+)
 ament_target_dependencies(${PROJECT_NAME} ${THIS_PACKAGE_INCLUDE_DEPENDS})
 
 ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(rclcpp)
 
 install(
-  DIRECTORY include/RobotClient include/SceneClient include/URRepublisher
+  DIRECTORY include/RobotClient include/SceneClient include/URRepublisher include/TaskClient
   DESTINATION include
 )
 

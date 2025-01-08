@@ -27,6 +27,6 @@ Data = data(
     joint_names=['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint'],
     link_names=['base_link_inertia', 'base_link', 'shoulder_link', 'upper_arm_link', 'forearm_link', 'wrist_1_link', 'wrist_2_link', 'wrist_3_link'],
     flange_name="flange",
-    arm_group_name="manipulator",
+    arm_group_name="ur_manipulator",
     planning_groups=['manipulator']
 )
