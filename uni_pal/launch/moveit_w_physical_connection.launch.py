@@ -15,7 +15,7 @@ def generate_launch_description():
     controller_spawner_timeout = LaunchConfiguration("controller_spawner_timeout")
 
     moveit_config = (
-        MoveItConfigsBuilder("robot", package_name="uni_pal_description")
+        MoveItConfigsBuilder("ur", package_name="uni_pal_description")
         .planning_scene_monitor(
             publish_robot_description=True,
             publish_robot_description_semantic=True
@@ -25,7 +25,7 @@ def generate_launch_description():
     )
     moveit_config.trajectory_execution["moveit_simple_controller_manager"]["scaled_joint_trajectory_controller"]["default"] = False
     moveit_config.trajectory_execution["moveit_simple_controller_manager"]["joint_trajectory_controller"]["default"] = True
-    rviz_config_file = get_path('uni_pal_description', 'rviz/run_move_group.rviz')
+    rviz_config_file = get_path('uni_pal_description', 'rviz/mtc_view.rviz')
     initial_joint_controllers = get_path("ur_robot_driver", "config/ur_controllers.yaml")
     update_rate_config_file = get_path("ur_robot_driver", "config/ur10_update_rate.yaml")
 
@@ -47,6 +47,7 @@ def generate_launch_description():
         parameters=[moveit_config.robot_description],
     )
 
+    move_group_capabilities = {"capabilities": "move_group/ExecuteTaskSolutionCapability"}
     run_move_group_node = Node(
         package='moveit_ros_move_group',
         executable='move_group',
@@ -59,6 +60,7 @@ def generate_launch_description():
             moveit_config.trajectory_execution,
             moveit_config.planning_scene_monitor,
             moveit_config.joint_limits,
+            move_group_capabilities
         ],
     )
     rviz_node = Node(
@@ -72,6 +74,21 @@ def generate_launch_description():
             moveit_config.robot_description_semantic,
             moveit_config.robot_description_kinematics,           
             moveit_config.planning_pipelines,
+            moveit_config.joint_limits,
+        ],
+    )
+
+    mtc_node = Node(
+        package='uni_pal',
+        executable='task_client',
+        output='screen',
+        parameters=[
+            moveit_config.robot_description,
+            moveit_config.robot_description_semantic,
+            moveit_config.robot_description_kinematics,           
+            moveit_config.planning_pipelines,
+            moveit_config.trajectory_execution,
+            moveit_config.planning_scene_monitor,
             moveit_config.joint_limits,
         ],
     )
@@ -109,7 +126,8 @@ def generate_launch_description():
         ur_control_node,
         robot_state_publisher_node,
         rviz_node,
-        run_move_group_node
+        run_move_group_node,
+        mtc_node
     ] + controller_spawners
 
     return LaunchDescription(declared_arguments + nodes_to_start)      

@@ -1,6 +1,6 @@
 #include "TaskClient/TaskClient.h"
 
-TaskClient::TaskClient() : Node("task_client")
+TaskClient::TaskClient(const rclcpp::NodeOptions& options) : Node("task_client", options)
 {
     // Subscribers
     static_info_subscriber_ = this->create_subscription<uni_pal_msgs::msg::RobotStaticInfo>(
@@ -44,6 +44,13 @@ void TaskClient::do_task_()
         return;
     }
     task_.introspection().publishSolution(*task_.solutions().front());
+    auto action_client = rclcpp_action::create_client<moveit_task_constructor_msgs::action::ExecuteTaskSolution>(shared_from_this(), "execute_task_solution");
+
+
+    if (!action_client->wait_for_action_server(std::chrono::seconds(10))) {
+        RCLCPP_ERROR(this->get_logger(), "Action server 'execute_task_solution' not available after waiting");
+        return;
+    }
 
     auto result = task_.execute(*task_.solutions().front());
     if (result.val != moveit_msgs::msg::MoveItErrorCodes::SUCCESS)
@@ -51,6 +58,13 @@ void TaskClient::do_task_()
         RCLCPP_ERROR_STREAM(this->get_logger(), "Task execution failed");
         return;
     }
+
+    // auto result = task_.execute(*task_.solutions().front());
+    // if (result.val != moveit_msgs::msg::MoveItErrorCodes::SUCCESS)
+    // {
+    //     RCLCPP_ERROR_STREAM(this->get_logger(), "Task execution failed");
+    //     return;
+    // }
 
     return;
 }

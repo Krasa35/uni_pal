@@ -2,14 +2,16 @@
 #define TASKCLIENT_H
 
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp_action/rclcpp_action.hpp>
 #include "uni_pal_msgs/msg/robot_static_info.hpp"
 #include "uni_pal_msgs/msg/robot_dynamic_info.hpp"
 #include "moveit/task_constructor/task.h"
+#include <moveit_task_constructor_msgs/action/execute_task_solution.hpp>
 
 class TaskClient : public rclcpp::Node
 {
   public:
-    TaskClient();
+    TaskClient(const rclcpp::NodeOptions&);
 
   private:
     // Subscribers
