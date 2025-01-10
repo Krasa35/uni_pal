@@ -28,6 +28,7 @@ add_library(${PROJECT_NAME}
   src/URRepublisher.cpp 
   src/TaskClient.cpp
   src/tasks/create_demo_task_.cpp
+  src/tasks/create_homing_task_.cpp
 )
 ament_target_dependencies(${PROJECT_NAME} ${THIS_PACKAGE_INCLUDE_DEPENDS})
 

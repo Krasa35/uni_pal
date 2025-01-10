@@ -1,6 +1,6 @@
 import yaml
 import os, sys
-from templates import urdf, launch, srdf, predefined
+from templates import urdf, launch, srdf, predefined, joint_limits, kinematics
 
 config_file_path = '/home/ws/config.yaml'
 
@@ -10,6 +10,7 @@ with open(config_file_path, 'r') as file:
 system = config['system']
 robot = config['robot']
 robot['specific'] = urdf.get_robot_specific(robot['type'])
+robot['joint_limits'] = {} if 'joint_limits' not in robot else robot['joint_limits']
 scene = config['scene']
 accessories = config['accessories']
 srdf_config = config['srdf']
@@ -52,7 +53,8 @@ print(f"URDF file generated at {main_urdf_file_path}")
 urdf.delete_old_files(config_dir, os.path.join(config_dir, '.ignore'))
 launch.start_launch(launch_file_path, system['launch_type'], robot['model'], robot['ip'])
 launch.copy_config(uni_pal_description_dir, robot['type'], robot['model'], robot['data']['arm_group_name'])
-
+joint_limits.start_joint_limits(os.path.join(config_dir, 'joint_limits.yaml'), robot['specific'], robot['joint_limits'])
+kinematics.start_kinematics(os.path.join(config_dir, 'kinematics.yaml'), robot['data']['arm_group_name'])
 # SRDF generation
 srdf.start_srdf(srdf_file_path, robot['model'], robot['specific'], srdf_config, combined_elements, robot['data']['arm_group_name'])
 

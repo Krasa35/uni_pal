@@ -1,1 +1,3 @@
 pilz_cartesian_limits.yaml
+joint_limits.yaml
+kinematics.yaml

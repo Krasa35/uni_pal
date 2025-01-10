@@ -7,9 +7,9 @@ TaskClient::TaskClient(const rclcpp::NodeOptions& options) : Node("task_client",
         "/robot_client/static_info", 10, std::bind(&TaskClient::static_info_subscriber_callback_, this, std::placeholders::_1));
     dynamic_info_subscriber_ = this->create_subscription<uni_pal_msgs::msg::RobotDynamicInfo>(
         "/robot_client/dynamic_info", 10, std::bind(&TaskClient::dynamic_info_subscriber_callback_, this, std::placeholders::_1));
-    timer_ = this->create_wall_timer(
-      std::chrono::seconds(5),
-      std::bind(&TaskClient::do_task_, this));
+    // Service server
+    execute_task_srv_ = this->create_service<uni_pal_msgs::srv::ExecuteTask>(
+        "/task_client/execute_task",std::bind(&TaskClient::execute_task_, this, std::placeholders::_1, std::placeholders::_2)) ;
 }
 
 // Subscribers
@@ -23,10 +23,28 @@ void TaskClient::dynamic_info_subscriber_callback_(const uni_pal_msgs::msg::Robo
     dynamic_message_ = msg;
 }
 
-// MoveIt Task Constructor
-void TaskClient::do_task_()
+// Service server
+void TaskClient::execute_task_(std::shared_ptr<uni_pal_msgs::srv::ExecuteTask::Request> request,
+                               std::shared_ptr<uni_pal_msgs::srv::ExecuteTask::Response> response)
 {
-    task_ = create_demo_task_();
+    RobotMovement move = toRobotMovement(request->task_nr);
+    do_task_(move);
+    response->success = true;
+}
+
+// MoveIt Task Constructor
+void TaskClient::do_task_(RobotMovement task_nr)
+{
+  switch(task_nr) {
+    case RobotMovement::Demo:  //999
+      task_ = create_demo_task_();
+      break;
+    case RobotMovement::Homing:  //0
+      task_ = create_homing_task_();
+      break;
+    default: throw std::invalid_argument("Invalid task_nr value");
+      break;
+  }
 
     try
     {
@@ -58,13 +76,6 @@ void TaskClient::do_task_()
         RCLCPP_ERROR_STREAM(this->get_logger(), "Task execution failed");
         return;
     }
-
-    // auto result = task_.execute(*task_.solutions().front());
-    // if (result.val != moveit_msgs::msg::MoveItErrorCodes::SUCCESS)
-    // {
-    //     RCLCPP_ERROR_STREAM(this->get_logger(), "Task execution failed");
-    //     return;
-    // }
 
     return;
 }

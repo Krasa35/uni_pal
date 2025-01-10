@@ -34,6 +34,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/Empty.srv"
   "srv/GetPublishedTransforms.srv"
   "srv/SetPublishedTransforms.srv"
+  "srv/ExecuteTask.srv"
   DEPENDENCIES geometry_msgs sensor_msgs 
 )
 
