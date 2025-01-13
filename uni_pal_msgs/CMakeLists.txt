@@ -27,6 +27,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/RobotRPY.msg"
   "msg/FramePose.msg"
   "msg/ConfigParams.msg"
+  "msg/PalletCounters.msg"
+  "msg/Counters.msg"
   "srv/GetPalParams.srv"
   "srv/GetConfigParams.srv"
   "srv/GetPlacePos.srv"
@@ -35,6 +37,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/GetPublishedTransforms.srv"
   "srv/SetPublishedTransforms.srv"
   "srv/ExecuteTask.srv"
+  "srv/SetPalletSide.srv"
   DEPENDENCIES geometry_msgs sensor_msgs 
 )
 

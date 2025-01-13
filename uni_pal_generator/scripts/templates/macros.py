@@ -676,7 +676,7 @@ def generate_launch_description():
 srdf_template = """<?xml version="1.0" encoding="UTF-8"?>
 <robot name="{{ robot_model }}">
     <group name="{{ arm_group_name }}">
-        <chain base_link="base" tip_link="flange"/>
+        <chain base_link="base_link" tip_link="tool0"/>
     </group>
 {{ group_states }}
 {{ disabled_collisions }}

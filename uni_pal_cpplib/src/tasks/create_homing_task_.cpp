@@ -41,7 +41,7 @@ moveit::task_constructor::Task TaskClient::create_homing_task_()
         task.add(std::move(stage_state_current)); 
     }
 
-    // safe position
+    // safe positionse
     if ((dynamic_message_.state.hyper_extension && dynamic_message_.state.high_above_base) || dynamic_message_.state.hyper_roll)
     {
       auto orientation_stage = std::make_unique<moveit::task_constructor::stages::MoveTo>("go to safe position", sampling_planner);

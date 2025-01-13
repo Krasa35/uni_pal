@@ -1,0 +1,4 @@
+uint8 boxes_placed
+uint8 layers_placed
+uint8 boxes_on_current_layer
+string pallet_state

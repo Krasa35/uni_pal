@@ -4,14 +4,11 @@ RobotClient::RobotClient() : Node("robot_client"), pubished_msgs_count_(0)
 {
   RCLCPP_INFO(this->get_logger(), "robot_client node has been started.");
   // Create publishers & publish
-  RCLCPP_INFO(this->get_logger(), "Creating publishers...");
   dynamic_info_publisher_ = this->create_publisher<uni_pal_msgs::msg::RobotDynamicInfo>("/robot_client/dynamic_info", 10);
   static_info_publisher_ = this->create_publisher<uni_pal_msgs::msg::RobotStaticInfo>("/robot_client/static_info", 10);
-  RCLCPP_INFO(this->get_logger(), "Creating timer...");
   publish_messages_timer_ = this->create_wall_timer(
     std::chrono::milliseconds(500), std::bind(&RobotClient::publish_messages_, this));
   // Create subscribers
-  RCLCPP_INFO(this->get_logger(), "Creating subscribers...");
   robot_specific_subscriber_ = this->create_subscription<uni_pal_msgs::msg::RobotSpecific>(
     "/robot_specific", 10, std::bind(&RobotClient::robot_specific_subscriber_callback_, this, std::placeholders::_1));
   joint_state_subscriber_ = this->create_subscription<sensor_msgs::msg::JointState>(
@@ -19,7 +16,6 @@ RobotClient::RobotClient() : Node("robot_client"), pubished_msgs_count_(0)
   tf_buffer = std::make_unique<tf2_ros::Buffer>(this->get_clock());
   tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer);
   // Service Clients
-  RCLCPP_INFO(this->get_logger(), "Creating service clients...");
   config_params_client_ = this->create_client<uni_pal_msgs::srv::GetConfigParams>("/read_json_node/get_config_params");
   got_config_params_ = false;
   get_robot_static_info_();
@@ -118,7 +114,7 @@ void RobotClient::config_params_sent_service_(rclcpp::Client<uni_pal_msgs::srv::
       uni_pal_msgs::srv::GetConfigParams_Response config_params_response = *(future.get());
       static_message_.config = config_params_response.config;
       got_config_params_ = true;
-      RCLCPP_INFO(this->get_logger(), "Result: success");
+      RCLCPP_INFO(this->get_logger(), "Parameters Received from \"/read_json_node/get_config_params\".");
     }
     else 
     {
@@ -143,6 +139,13 @@ void RobotClient::get_robot_dynamic_info_()
   geometry_msgs::msg::TransformStamped world_eef_transform = lookup_transform_("world", "flange");
   dynamic_message_.actual_pose.pose_in_world = get_pose_(world_eef_transform);
   dynamic_message_.actual_pose.rpy_in_world = get_rpy_(world_eef_transform);
+
+  dynamic_message_.actual_pose.current_tcp_name = "tool0";
+  geometry_msgs::msg::PoseStamped temp;
+  temp.header.stamp = this->now();
+  temp.header.frame_id = "tool0";
+  temp.pose = get_pose_(lookup_transform_("tool0", "tool0"));
+  dynamic_message_.actual_pose.current_tcp_pose = temp;
 
   process_robot_info_();
 }

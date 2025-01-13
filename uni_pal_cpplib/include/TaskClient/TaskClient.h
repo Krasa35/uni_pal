@@ -11,6 +11,7 @@
 
 enum class RobotMovement : uint32_t {
     Homing = 0,
+    EmergencyHoming = 1,
     Pick = 100,
     Place = 200,
     Demo = 999,
@@ -19,6 +20,7 @@ enum class RobotMovement : uint32_t {
 inline RobotMovement toRobotMovement(uint32_t value) {
     switch (value) {
         case 0: return RobotMovement::Homing;
+        case 1: return RobotMovement::EmergencyHoming;
         case 100: return RobotMovement::Pick;
         case 200: return RobotMovement::Place;
         case 999: return RobotMovement::Demo;
@@ -45,10 +47,14 @@ class TaskClient : public rclcpp::Node
                       std::shared_ptr<uni_pal_msgs::srv::ExecuteTask::Response>);
     rclcpp::Service<uni_pal_msgs::srv::ExecuteTask>::SharedPtr execute_task_srv_;
     // MoveIt Task Constructor
-    void do_task_(RobotMovement);
+    bool do_task_(RobotMovement);
     moveit::task_constructor::Task create_demo_task_();
     moveit::task_constructor::Task create_homing_task_();
+    moveit::task_constructor::Task create_emergency_homing_task_();
+    moveit::task_constructor::Task create_pick_place_task_();
     moveit::task_constructor::Task task_;
+    // Other
+    // moveit_msgs::msg::CollisionObject create_box_(std::string);
 };
 
 #endif

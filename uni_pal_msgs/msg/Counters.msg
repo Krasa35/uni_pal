@@ -1,0 +1,5 @@
+float64 time_elapsed
+float64 time_per_box
+uint32 total_boxes_placed
+uni_pal_msgs/PalletCounters left_pallet
+uni_pal_msgs/PalletCounters right_pallet

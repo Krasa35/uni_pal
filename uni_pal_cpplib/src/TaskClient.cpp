@@ -28,19 +28,21 @@ void TaskClient::execute_task_(std::shared_ptr<uni_pal_msgs::srv::ExecuteTask::R
                                std::shared_ptr<uni_pal_msgs::srv::ExecuteTask::Response> response)
 {
     RobotMovement move = toRobotMovement(request->task_nr);
-    do_task_(move);
-    response->success = true;
+    response->success = do_task_(move);
 }
 
 // MoveIt Task Constructor
-void TaskClient::do_task_(RobotMovement task_nr)
+bool TaskClient::do_task_(RobotMovement task_nr)
 {
   switch(task_nr) {
-    case RobotMovement::Demo:  //999
-      task_ = create_demo_task_();
-      break;
     case RobotMovement::Homing:  //0
       task_ = create_homing_task_();
+      break;
+    case RobotMovement::EmergencyHoming:  //1
+      task_ = create_emergency_homing_task_();
+      break;
+    case RobotMovement::Demo:  //999
+      task_ = create_demo_task_();
       break;
     default: throw std::invalid_argument("Invalid task_nr value");
       break;
@@ -53,13 +55,13 @@ void TaskClient::do_task_(RobotMovement task_nr)
     catch (moveit::task_constructor::InitStageException& e)
     {
         RCLCPP_ERROR_STREAM(this->get_logger(), e);
-        return;
+        return false;
     }
 
     if (!task_.plan(5))
     {
         RCLCPP_ERROR_STREAM(this->get_logger(), "Task planning failed");
-        return;
+        return false;
     }
     task_.introspection().publishSolution(*task_.solutions().front());
     auto action_client = rclcpp_action::create_client<moveit_task_constructor_msgs::action::ExecuteTaskSolution>(shared_from_this(), "execute_task_solution");
@@ -67,15 +69,15 @@ void TaskClient::do_task_(RobotMovement task_nr)
 
     if (!action_client->wait_for_action_server(std::chrono::seconds(10))) {
         RCLCPP_ERROR(this->get_logger(), "Action server 'execute_task_solution' not available after waiting");
-        return;
+        return false;
     }
 
     auto result = task_.execute(*task_.solutions().front());
     if (result.val != moveit_msgs::msg::MoveItErrorCodes::SUCCESS)
     {
         RCLCPP_ERROR_STREAM(this->get_logger(), "Task execution failed");
-        return;
+        return false;
     }
 
-    return;
+    return true;
 }

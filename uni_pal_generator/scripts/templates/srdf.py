@@ -7,7 +7,7 @@ def start_srdf(file_path, robot_model_, robot_specific, srdf_config, accessories
     for state_name, joints in srdf_config['group_states']['manipulator'].items():
         group_states_ += f'    <group_state name="{state_name}" group="{arm_group_name_}">\n'
         for joint, value in zip(robot_specific['joints'].values(), joints):
-            group_states_ += f'        <joint name="{joint}" value="{value}"/>\n'
+            group_states_ += f'        <joint name="{joint}" value="{value}"/>\n' if value!= 'None' else f''
         group_states_ += '    </group_state>\n'
 
     disabled_collisions_ = ""

@@ -15,6 +15,7 @@
   <depend>tf_transformations</depend>
   <depend>uni_pal_msgs</depend>
   <depend>ur_msgs</depend>
+  <depend>shape_msgs</depend>
   <depend>moveit_task_constructor_core</depend>
 
  <export>
