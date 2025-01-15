@@ -2,4 +2,4 @@
 string frame
 ---
 # Result
-string status
+bool success

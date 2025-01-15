@@ -29,6 +29,8 @@ def start_srdf(file_path, robot_model_, robot_specific, srdf_config, accessories
         robot_model=robot_model_,
         group_states=group_states_,
         disabled_collisions=disabled_collisions_,
+        base_link=robot_specific['links']['base_link'],
+        tip_link=robot_specific['links']['tip_link'],
     )
 
     with open(file_path, 'w') as srdf_file:

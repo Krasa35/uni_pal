@@ -5,7 +5,7 @@ import rclpy
 from rclpy.node import Node
 from ament_index_python.packages import get_package_share_directory
 from uni_pal_msgs.srv import GetPalParams, GetPlacePos, GetConfigParams
-from uni_pal_pylib.utils import create_pose_stamped
+from uni_pal_pylib.utils import create_pose
 from uni_pal_pylib.predefined import Data
 from dataclasses import dataclass, field
 from typing import List
@@ -142,7 +142,7 @@ class ServiceServer(Node):
         return json_data
 
     def find_box_position(self, request: GetPlacePos.Request, response: GetPlacePos.Response):
-        self.get_logger().info('Handling /read_json_node/get_box_position request...')
+        self.get_logger().info(f'Handling request Layer number: {request.layer_no}, Box number: {request.box_no}, Pallet side: {request.pallet_side}')
         # Find the layer pattern for the given layer number
         layer_pattern = None
         for layer in self.json_data.pallet.layers:
@@ -158,21 +158,21 @@ class ServiceServer(Node):
             if pattern.name == layer_pattern:
                 if request.box_no <= len(pattern.boxPositions):
                     if request.pallet_side == "LEFT":
-                        response.place_pose = create_pose_stamped(
+                        response.place_pose = create_pose(
                             xyz_=[pattern.boxPositions[request.box_no]['x'], 
                                   pattern.boxPositions[request.box_no]['y'], 
-                                  0.0], 
-                            rpy_=[0.0, 0.0, 0.0], 
-                            seconds_=0,
-                            frame_id_="base_link")
+                                  pattern.boxPositions[request.box_no]['rotation']], 
+                            rpy_=[0.0, 0.0, pattern.boxPositions[request.box_no]['rotation']])
+                        return response
                     if  request.pallet_side == "RIGHT":
-                        response.place_pose = create_pose_stamped(
+                        response.place_pose = create_pose(
                             xyz_=[pattern.boxPositionsAlt[request.box_no]['x'], 
                                   pattern.boxPositionsAlt[request.box_no]['y'], 
-                                  0.0], 
-                            rpy_=[0.0, 0.0, 0.0], 
-                            seconds_=0,
-                            frame_id_="base_link")
+                                  pattern.boxPositionsAlt[request.box_no]['rotation']], 
+                            rpy_=[0.0, 0.0, pattern.boxPositionsAlt[request.box_no]['rotation']])
+                        return response
+        self.get_logger().error(f'Box number {request.box_no} not found in layer pattern {layer_pattern}.')
+        response.place_pose = None
         return response
 
     def handle_palletize_parameters(self, request, response: GetPalParams.Response):

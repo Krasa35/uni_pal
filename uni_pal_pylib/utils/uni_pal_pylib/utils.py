@@ -19,15 +19,13 @@ def indent_content(file_path):
   with open(file_path, 'w') as file:
       file.writelines(indented_lines)
 
-def create_pose_stamped(**kwargs) -> PoseStamped:
+def create_pose(**kwargs) -> PoseStamped:
     """
-    @brief Creates a PoseStamped message.
+    @brief Creates a Pose message.
 
     @param xyz_ A list of three floats representing the x, y, and z coordinates.
     @param rpy_ (optional) A list of three floats representing the roll, pitch, and yaw for orientation.
     @param xyzw_ (optional) A list of four floats representing the quaternion (x, y, z, w) for orientation.
-    @param seconds_ (optional) The time in seconds for the header.
-    @param frame_id_ (optional) The frame ID for the header.
 
     @return PoseStamped The created PoseStamped message.
     """
@@ -37,13 +35,12 @@ def create_pose_stamped(**kwargs) -> PoseStamped:
         quaternion_ = kwargs["xyzw_"]
     else:
         quaternion_ = [0.0, 0.0, 0.0, 1.0]
-    orientation_ = Quaternion(quaternion_)
-    pose = PoseStamped(
-        header=Header(stamp=Time(sec=kwargs["seconds_"], nanosec=0), frame_id=kwargs["frame_id_"]),
-        pose=Pose(position=Point(
-                x=float(kwargs["xyz_"][0]), y=float(kwargs["xyz_"][1]), z=float(kwargs["xyz_"][2])), 
-            orientation=orientation_
-    ))
+    orientation_ = Quaternion(x=quaternion_[0], y=quaternion_[1], z=quaternion_[2], w=quaternion_[3])
+    pose = Pose(
+        position=Point(
+            x=float(kwargs["xyz_"][0]), y=float(kwargs["xyz_"][1]), z=float(kwargs["xyz_"][2])), 
+        orientation=orientation_
+    )
     return pose
 
 def print_pose_stamped(pose: PoseStamped, **kwargs):

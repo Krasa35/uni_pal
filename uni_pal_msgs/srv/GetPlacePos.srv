@@ -4,4 +4,4 @@ int32 box_no
 string pallet_side
 ---
 # Result
-geometry_msgs/PoseStamped place_pose
+geometry_msgs/Pose place_pose

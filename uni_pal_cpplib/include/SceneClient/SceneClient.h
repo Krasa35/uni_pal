@@ -21,6 +21,7 @@
 #include "uni_pal_msgs/msg/pal_params.hpp"
 #include "uni_pal_msgs/msg/pallet_counters.hpp"
 #include "uni_pal_msgs/msg/counters.hpp"
+#include "uni_pal_msgs/msg/robot_static_info.hpp"
 #include "moveit/planning_scene_interface/planning_scene_interface.h"
 #include "moveit_msgs/msg/attached_collision_object.hpp"
 #include "moveit_msgs/srv/apply_planning_scene.hpp"
@@ -40,12 +41,13 @@ class SceneClient : public rclcpp::Node
     rclcpp::Publisher<moveit_msgs::msg::PlanningScene>::SharedPtr planning_scene_diff_publisher_;
     uni_pal_msgs::msg::Counters counters_msg_;
     moveit_msgs::msg::PlanningScene planning_scene_;
-    // moveit::planning_interface::PlanningSceneInterface planning_scene_interface_;
     std::vector<moveit_msgs::msg::AttachedCollisionObject> collision_objects_;
-    // moveit_msgs::msg::AttachedCollisionObject collision_object;
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::TimerBase::SharedPtr tf_timer_;
-    void publish_tf_();
+    // Subscribers
+    void static_message_subscriber_callback_(const uni_pal_msgs::msg::RobotStaticInfo&);
+    rclcpp::Subscription<uni_pal_msgs::msg::RobotStaticInfo>::SharedPtr static_message_subscriber_;
+    uni_pal_msgs::msg::RobotStaticInfo static_message_;
     // Service Servers
     void get_pal_params_(std::shared_ptr<uni_pal_msgs::srv::Empty::Request>,
                          std::shared_ptr<uni_pal_msgs::srv::Empty::Response>);
@@ -67,7 +69,6 @@ class SceneClient : public rclcpp::Node
     void pal_params_sent_service_(rclcpp::Client<uni_pal_msgs::srv::GetPalParams>::SharedFuture);
     void send_tf_request_();
     rclcpp::Client<uni_pal_msgs::srv::GetPalParams>::SharedPtr pal_params_client_;
-    rclcpp::Client<moveit_msgs::srv::ApplyPlanningScene>::SharedPtr planning_scene_diff_client_; 
     uni_pal_msgs::srv::GetPalParams_Response pal_params_response_;
     bool got_pal_params_;
     // Other

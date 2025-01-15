@@ -30,7 +30,8 @@ add_library(${PROJECT_NAME}
   src/tasks/create_demo_task_.cpp
   src/tasks/create_homing_task_.cpp
   src/tasks/create_emergency_homing_task_.cpp
-  src/tasks/create_pick_place_task_.cpp
+  src/tasks/create_pick_task_.cpp
+  src/tasks/create_place_task_.cpp
   src/Controller.cpp
   src/URRepublisher.cpp 
 )

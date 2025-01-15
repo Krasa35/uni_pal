@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<robot name="padding_j3">
+  <link name="padding_j3">
+      <visual>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <geometry>
+        <mesh filename="file://$(find uni_pal_description)/meshes/Padding_RC10_3.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Gray">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <geometry>
+        <mesh filename="file://$(find uni_pal_description)/meshes/Padding_RC10_3.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+      </collision>
+  </link>
+  <joint name="upper_arm_link - padding_j3" type="fixed">
+    <origin xyz="-0.6 0.0 0.2" rpy="0.0 0.0 1.57" />
+    <parent link="upper_arm_link" />
+    <child link="padding_j3" />
+  </joint>
+</robot>

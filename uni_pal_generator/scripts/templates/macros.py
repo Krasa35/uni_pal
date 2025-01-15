@@ -80,6 +80,7 @@ techman_robots = {
 
 """,
     'links': {
+        'base_link': 'base_link',
         'base': 'link_0',
         'base_2': 'link_0',
         'link_1': 'link_1',
@@ -88,6 +89,7 @@ techman_robots = {
         'link_4': 'link_4',
         'link_5': 'link_5',
         'link_6': 'link_6',
+        'tip_link': 'flange',
     },
     'joints': {
         'joint_1': 'joint_1',
@@ -191,6 +193,7 @@ universal_robots = {
 
 """,
     'links': {
+        'base_link': 'base_link',
         'base': 'base_link_inertia',
         'base_2': 'base_link',
         'link_1': 'shoulder_link',
@@ -199,6 +202,7 @@ universal_robots = {
         'link_4': 'wrist_1_link',
         'link_5': 'wrist_2_link',
         'link_6': 'wrist_3_link',
+        'tip_link': 'tool0',
     },
     'joints': {
         'joint_1': 'shoulder_pan_joint',
@@ -676,7 +680,7 @@ def generate_launch_description():
 srdf_template = """<?xml version="1.0" encoding="UTF-8"?>
 <robot name="{{ robot_model }}">
     <group name="{{ arm_group_name }}">
-        <chain base_link="base_link" tip_link="tool0"/>
+        <chain base_link="{{ base_link }}" tip_link="{{ tip_link }}"/>
     </group>
 {{ group_states }}
 {{ disabled_collisions }}

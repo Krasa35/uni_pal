@@ -93,6 +93,9 @@
     <origin xyz="0.075 0.0 0.71" rpy="0.0 0.0 1.57" />          <!-- position robot in the world -->
   </xacro:ur_robot>
 
+	<xacro:include filename="$(find uni_pal_description)/urdf/padding_j3.urdf"/> 
+	<xacro:include filename="$(find uni_pal_description)/urdf/padding_j4.urdf"/> 
+	<xacro:include filename="$(find uni_pal_description)/urdf/padding_j5.urdf"/> 
 	<xacro:include filename="$(find uni_pal_description)/urdf/gripper.urdf"/> 
 
 </robot>

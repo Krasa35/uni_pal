@@ -12,6 +12,9 @@
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 // #include "uni_pal_description/config/"
 #include "uni_pal_msgs/srv/get_config_params.hpp"
+#include "uni_pal_msgs/srv/get_published_transforms.hpp"
+#include "uni_pal_msgs/srv/empty.hpp"
+#include "uni_pal_msgs/srv/set_frame.hpp"
 #include "uni_pal_msgs/msg/robot_static_info.hpp"
 #include "uni_pal_msgs/msg/robot_dynamic_info.hpp"
 #include "uni_pal_msgs/msg/robot_specific.hpp"
@@ -44,10 +47,22 @@ class RobotClient : public rclcpp::Node
     rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_state_subscriber_;
     std::unique_ptr<tf2_ros::Buffer> tf_buffer;
     std::shared_ptr<tf2_ros::TransformListener> tf_listener_{nullptr};
+    // Service servers
+    void update_robot_static_info_(std::shared_ptr<uni_pal_msgs::srv::Empty::Request>,
+                                   std::shared_ptr<uni_pal_msgs::srv::Empty::Response>);
+    void set_tcp_(std::shared_ptr<uni_pal_msgs::srv::SetFrame::Request>,
+                  std::shared_ptr<uni_pal_msgs::srv::SetFrame::Response>);
+    void set_frame_(std::shared_ptr<uni_pal_msgs::srv::SetFrame::Request>,
+                    std::shared_ptr<uni_pal_msgs::srv::SetFrame::Response>); 
+    rclcpp::Service<uni_pal_msgs::srv::Empty>::SharedPtr update_robot_static_info_srv_;
+    rclcpp::Service<uni_pal_msgs::srv::SetFrame>::SharedPtr set_tcp_srv_;
+    rclcpp::Service<uni_pal_msgs::srv::SetFrame>::SharedPtr set_frame_srv_;
     // Service clients
     void get_config_params_();
+    void get_published_transforms_();
     void config_params_sent_service_(rclcpp::Client<uni_pal_msgs::srv::GetConfigParams>::SharedFuture);
     rclcpp::Client<uni_pal_msgs::srv::GetConfigParams>::SharedPtr config_params_client_;
+    rclcpp::Client<uni_pal_msgs::srv::GetPublishedTransforms>::SharedPtr get_published_transforms_client_;
     bool got_config_params_;
     // Process methods
     geometry_msgs::msg::Pose get_pose_(const geometry_msgs::msg::TransformStamped&);
@@ -56,5 +71,6 @@ class RobotClient : public rclcpp::Node
     void get_robot_static_info_();
     void get_robot_dynamic_info_();
     void process_robot_info_();
+    bool got_robot_static_info_;
 };
 #endif

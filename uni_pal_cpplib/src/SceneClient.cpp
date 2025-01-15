@@ -8,7 +8,9 @@ SceneClient::SceneClient() : Node("scene_client")
   pal_params_publisher_ = this->create_publisher<uni_pal_msgs::msg::PalParams>("/scene_client/pal_params", 10);
   counters_publisher_ = this->create_publisher<uni_pal_msgs::msg::Counters>("/scene_client/counters", 10);
   planning_scene_diff_publisher_ = this->create_publisher<moveit_msgs::msg::PlanningScene>("planning_scene", 10);
-  
+  // Subscribers
+  static_message_subscriber_ = this->create_subscription<uni_pal_msgs::msg::RobotStaticInfo>(
+      "/robot_client/static_info", 10, std::bind(&SceneClient::static_message_subscriber_callback_, this, std::placeholders::_1));
   // Service Servers
   get_pal_params_srv_ = this->create_service<uni_pal_msgs::srv::Empty>(
       "/scene_client/get_pal_params", std::bind(&SceneClient::get_pal_params_, this, std::placeholders::_1, std::placeholders::_2));
@@ -22,7 +24,6 @@ SceneClient::SceneClient() : Node("scene_client")
       "/scene_client/set_pallet_side", std::bind(&SceneClient::set_pallet_side_, this, std::placeholders::_1, std::placeholders::_2));
   // Service Clients
   pal_params_client_ = this->create_client<uni_pal_msgs::srv::GetPalParams>("/read_json_node/get_pallet_params");
-  planning_scene_diff_client_ = this->create_client<moveit_msgs::srv::ApplyPlanningScene>("/apply_planning_scene");
   got_pal_params_ = false;
   // Other
   tf_buffer_ = std::make_unique<tf2_ros::Buffer>(this->get_clock());
@@ -31,13 +32,14 @@ SceneClient::SceneClient() : Node("scene_client")
   tf_buffer_->setCreateTimerInterface(cti);
   tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
   frame_points_.resize(3);
-  std::thread([this]() {
+  std::thread([this]()
+              {
     rclcpp::WallRate loop_rate(std::chrono::milliseconds(100));
     while (rclcpp::ok()) {
       this->publish_messages_();
       loop_rate.sleep();
-    }
-  }).detach();
+    } })
+      .detach();
 }
 // Publishers
 void SceneClient::publish_messages_()
@@ -52,42 +54,18 @@ void SceneClient::publish_messages_()
   {
     for (auto &transform : published_transforms_)
     {
-      RCLCPP_INFO(this->get_logger(), "Publishing transforms...");
       transform.header.stamp = this->now();
       tf_broadcaster_->sendTransform(transform);
     }
   }
 
   counters_publisher_->publish(counters_msg_);
-  auto timeout_ms_ = std::chrono::milliseconds(100);
 
-  if(collision_objects_.size() > 0)
-  {
-    while (!transform_available_ && rclcpp::ok()) {
-      static constexpr auto input = "world", output = "pickpoint";
-      RCLCPP_INFO(this->get_logger(), "waiting %ld ms for %s->%s transform to become available",
-                  timeout_ms_.count(), input, output);
-      auto callback = [this](const std::shared_future<geometry_msgs::msg::TransformStamped> & future) {
-        try {
-          auto tf = future.get();
-          transform_available_ = true;
-        } catch (const tf2::TimeoutException & e) {
-          RCLCPP_INFO(get_logger(), "hit TimeoutException: %s", e.what());
-        }
-      };
-      auto future = tf_buffer_->waitForTransform(
-                                  input, output, tf2::TimePointZero, std::chrono::milliseconds(timeout_ms_), callback);
-      future.wait_for(timeout_ms_);
-    }
-    RCLCPP_INFO(this->get_logger(), "Publishing collision objects...");
-    for (auto &object : collision_objects_)
-    {
-      planning_scene_.world.collision_objects.push_back(object.object);
-    }
-    planning_scene_.is_diff = true;
-    planning_scene_diff_publisher_->publish(planning_scene_);
-    // transform_available_ = false;
-  }
+}
+// Subscribers
+void SceneClient::static_message_subscriber_callback_(const uni_pal_msgs::msg::RobotStaticInfo& msg)
+{
+  static_message_ = msg;
 }
 // Service Servers
 void SceneClient::get_pal_params_(std::shared_ptr<uni_pal_msgs::srv::Empty::Request>,
@@ -131,7 +109,7 @@ void SceneClient::create_box_on_pp_(std::shared_ptr<uni_pal_msgs::srv::Empty::Re
   rclcpp::Rate rate(0.1); // 1/10 Hz
   while (!got_pal_params_)
   {
-    RCLCPP_INFO(this->get_logger(), "Waiting for parameters...");
+    RCLCPP_INFO(this->get_logger(), "Waiting for parameters... Call /scene_client/get_pal_params service first.");
     rate.sleep();
   }
 
@@ -143,38 +121,72 @@ void SceneClient::create_box_on_pp_(std::shared_ptr<uni_pal_msgs::srv::Empty::Re
   }
   geometry_msgs::msg::TransformStamped pp_to_world = tf_buffer_->lookupTransform("world", "pickpoint", tf2::TimePointZero);
 
+  float box_x = (pal_params_response_.params.programsettings.box_orientation == "SHORT_SIDE_LEADING") ? pal_params_response_.params.box.length : pal_params_response_.params.box.width;
+  float box_y = (pal_params_response_.params.programsettings.box_orientation == "SHORT_SIDE_LEADING") ? pal_params_response_.params.box.width : pal_params_response_.params.box.length;
+  float box_z = pal_params_response_.params.box.height;
+  box_x = box_x/1000;
+  box_y = box_y/1000;
+  box_z = box_z/1000;
+
   moveit_msgs::msg::AttachedCollisionObject box;
-  box.link_name = "tool0";
-  box.object.id = "box " + std::to_string(counters_msg_.total_boxes_placed);
+  // box.link_name = "tool0";
+  box.object.id = "box " + std::to_string(counters_msg_.total_boxes_placed+1);
   box.object.header.frame_id = "world";
+  box.object.primitives.resize(2);
   shape_msgs::msg::SolidPrimitive primitive;
-  primitive.type = primitive.BOX;
-  primitive.dimensions.resize(3);
-  primitive.dimensions[0] = pal_params_response_.params.box.length / 1000;
-  primitive.dimensions[1] = pal_params_response_.params.box.width / 1000;
-  primitive.dimensions[2] = pal_params_response_.params.box.height / 1000;
+  box.object.primitives[0].type = shape_msgs::msg::SolidPrimitive::BOX;
+  box.object.primitives[0].dimensions = {box_x, box_y, box_z};
+  box.object.primitives[1].type = shape_msgs::msg::SolidPrimitive::BOX;
+  box.object.primitives[1].dimensions = {box_x / 2, box_y / 2, box_z / 2};
+  box.object.primitive_poses.resize(2);
+  box.object.pose.position.x = pp_to_world.transform.translation.x - box_y / 2; //because in world frame, box is rotated
+  box.object.pose.position.y = pp_to_world.transform.translation.y + box_x / 2; //because in world frame, box is rotated
+  box.object.pose.position.z = pp_to_world.transform.translation.z + box_z / 2;
+  box.object.pose.orientation = pp_to_world.transform.rotation;
+  if (pal_params_response_.params.programsettings.label_position != "BACK" &&
+      pal_params_response_.params.programsettings.label_position != "FRONT")
+  {
+    if (pal_params_response_.params.programsettings.label_position == "LEFT" ||
+        pal_params_response_.params.programsettings.label_position == "LEFT_BACK_CORNER" ||
+        pal_params_response_.params.programsettings.label_position == "LEFT_FRONT_CORNER")
+    {
+      box.object.primitive_poses[1].position.y = box_y / 3.9 * (-1);
+    }
+    else
+    {
+      box.object.primitive_poses[1].position.y = box_y / 3.9;
+    }
+  }
+  if (pal_params_response_.params.programsettings.label_position != "LEFT" &&
+      pal_params_response_.params.programsettings.label_position != "RIGHT")
+  {
+    if (pal_params_response_.params.programsettings.label_position == "FRONT" ||
+        pal_params_response_.params.programsettings.label_position == "LEFT_FRONT_CORNER" ||
+        pal_params_response_.params.programsettings.label_position == "RIGHT_FRONT_CORNER")
+    {
+      box.object.primitive_poses[1].position.x = box_x / 3.9 * (-1);
+    }
+    else
+    {
+      box.object.primitive_poses[1].position.x = box_x / 3.9;
+    }
+  }
 
-  geometry_msgs::msg::Pose pose;
-  pose.orientation.w = 1.0;
-  pose.position.x = pp_to_world.transform.translation.x - pal_params_response_.params.box.length / 2000;
-  pose.position.y = pp_to_world.transform.translation.y + pal_params_response_.params.box.width / 2000;
-  pose.position.z = pp_to_world.transform.translation.z + pal_params_response_.params.box.height / 2000;
-
-  box.object.primitives.push_back(primitive);
-  box.object.primitive_poses.push_back(pose);
   box.object.operation = box.object.ADD;
-  box.touch_links = std::vector<std::string>{ "gripper" };
+  box.touch_links = std::vector<std::string>{"gripper"};
 
   collision_objects_.push_back(box);
+  planning_scene_.world.collision_objects.push_back(box.object);
+  planning_scene_.is_diff = true;
+  planning_scene_diff_publisher_->publish(planning_scene_);
   RCLCPP_INFO(this->get_logger(), "Box added to pickpoint");
   increment_counters_();
-  // send_tf_request_();
 }
 
 void SceneClient::set_pallet_side_(std::shared_ptr<uni_pal_msgs::srv::SetPalletSide::Request> request,
-                                    std::shared_ptr<uni_pal_msgs::srv::SetPalletSide::Response>)
+                                   std::shared_ptr<uni_pal_msgs::srv::SetPalletSide::Response>)
 {
-  std::regex set_pattern(R"((set) layer=(\d+) box=(\d+))", std::regex_constants::icase);
+  std::regex set_pattern(R"((set)_layer_(\d+)_box_(\d+))", std::regex_constants::icase);
   std::smatch match;
   uni_pal_msgs::msg::PalletCounters *cnt;
 
@@ -197,7 +209,12 @@ void SceneClient::set_pallet_side_(std::shared_ptr<uni_pal_msgs::srv::SetPalletS
     cnt->pallet_state = "IN_PROGRESS";
     cnt->layers_placed = std::stoi(match[2]);
     cnt->boxes_on_current_layer = std::stoi(match[3]);
-    cnt->boxes_placed = cnt->boxes_on_current_layer + (cnt->layers_placed) * cnt->boxes_per_layer;
+    cnt->boxes_placed = cnt->boxes_on_current_layer + (cnt->layers_placed) * pal_params_response_.params.boxes_per_layer;
+  }
+  else  
+  {
+    RCLCPP_ERROR(this->get_logger(), "Invalid action. Must be either 'reset' or 'set_layer_<layer_nr>_box_<box_nr>'");
+    return;
   }
 }
 
@@ -212,52 +229,18 @@ void SceneClient::pal_params_sent_service_(rclcpp::Client<uni_pal_msgs::srv::Get
   }
 }
 
-// void SceneClient::send_tf_request_()
-// {
-//   planning_scene_diff_client_->wait_for_service();
-//   auto request = std::make_shared<moveit_msgs::srv::ApplyPlanningScene::Request>();
-//   moveit_msgs::msg::PlanningScene planning_scene;
-//   planning_scene_.world.collision_objects.push_back(collision_object.object);
-//   planning_scene_.is_diff = true;
-//   request->scene = planning_scene;
-//   // std::shared_future<std::shared_ptr<moveit_msgs::srv::ApplyPlanningScene_Response>> response_future;
-//   // response_future = planning_scene_diff_client_->async_send_request(request).future.share();
-//     // auto response_future = std::async(std::launch::async, [this, request]() {
-//     //   return planning_scene_diff_client_->async_send_request(request).get();
-//     // });
-//   auto result_future = planning_scene_diff_client_->async_send_request(request).future.share();
-//   // wait for the service to respond
-//   std::chrono::seconds wait_time(100);
-//   std::future_status fs = result_future.wait_for(wait_time);
-//   if (fs == std::future_status::ready)
-//   {
-//     std::shared_ptr<moveit_msgs::srv::ApplyPlanningScene_Response> planning_response;
-//     planning_response = result_future.get();
-//     if (planning_response->success)
-//     {
-//       RCLCPP_INFO(this->get_logger(), "Service successfully added object.");
-//     }
-//     else
-//     {
-//       RCLCPP_ERROR(this->get_logger(), "Service failed to add object.");
-//     }
-//   }
-//   else
-//   {
-//     RCLCPP_ERROR(this->get_logger(), "Service timed out.");
-//   }
-// }
-
 // OTHER
 void SceneClient::increment_counters_()
 {
   uni_pal_msgs::msg::PalletCounters *cnt;
   cnt = &counters_msg_.left_pallet;
-  if (cnt->pallet_state == "FULL") return;
+  if (cnt->pallet_state == "FULL")
+    return;
   counters_msg_.total_boxes_placed++;
-  cnt->layers_placed = floor(counters_msg_.total_boxes_placed % pal_params_response_.params.boxes_per_layer);
+  cnt->layers_placed = floor(counters_msg_.total_boxes_placed / pal_params_response_.params.boxes_per_layer);
   cnt->boxes_on_current_layer = counters_msg_.total_boxes_placed % pal_params_response_.params.boxes_per_layer;
-  if (cnt->layers_placed == cnt->layers_per_pallet) cnt->pallet_state = "FULL";
+  if (cnt->layers_placed == pal_params_response_.params.layers_per_pallet)
+    cnt->pallet_state = "FULL";
   cnt->pallet_state = "IN_PROGRESS";
 }
 
@@ -279,11 +262,21 @@ void SceneClient::init_pickpoint_()
   temp.pose.position.y = 0.772970;
   temp.pose.position.z = 0.868602;
   frame_points_[2] = geometry_msgs::msg::PoseStamped(temp);
-  t = computeConveyorFrame();
+  published_transforms_.push_back(computeConveyorFrame());
+
+  t.header.frame_id = static_message_.config.link_names.back();
+  RCLCPP_INFO(this->get_logger(), "Pickpoint frame: %s", t.header.frame_id.c_str());
+  t.child_frame_id = "gripper_pads";
+  auto found = std::find(static_message_.predefined.tcp_keys.begin(), static_message_.predefined.tcp_keys.end(), "gripper");
+  std::size_t index = std::distance(static_message_.predefined.tcp_keys.begin(), found);
+  RCLCPP_INFO(this->get_logger(), "Gripper index: %ld", index);
+  t.transform.translation.z = 0.1;
+  RCLCPP_INFO(this->get_logger(), "Gripper pads frame: %s", t.child_frame_id.c_str());
   published_transforms_.push_back(t);
 }
 
-geometry_msgs::msg::TransformStamped SceneClient::computeConveyorFrame(){
+geometry_msgs::msg::TransformStamped SceneClient::computeConveyorFrame()
+{
   geometry_msgs::msg::TransformStamped conveyor_frame_;
 
   tf2::Vector3 point_x(frame_points_[1].pose.position.x - frame_points_[0].pose.position.x, frame_points_[1].pose.position.y - frame_points_[0].pose.position.y, frame_points_[1].pose.position.z - frame_points_[0].pose.position.z);
