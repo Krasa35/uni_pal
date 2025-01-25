@@ -52,11 +52,15 @@ ament_target_dependencies(robot_republisher uni_pal_cpplib)
 add_executable(task_client src/task_client.cpp)
 ament_target_dependencies(task_client uni_pal_cpplib)
 
+add_executable(controller src/controller.cpp)
+ament_target_dependencies(controller uni_pal_cpplib)
+
 install(TARGETS
   robot_client
   scene_client
   robot_republisher
   task_client
+  controller
   DESTINATION lib/${PROJECT_NAME})
 
 # Install launch files.

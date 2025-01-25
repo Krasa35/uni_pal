@@ -54,11 +54,18 @@ def generate_launch_description():
         output='both',
         parameters=[moveit_config.robot_description]
     )
+    
+    robot_driver_node = Node(
+        package='ur_robot_driver',
+        executable='ur_ros2_control_node',
+        output='screen',
+    )
 
     return LaunchDescription(
         [
             rviz_node,
             robot_state_publisher,
             run_move_group_node,
+            robot_driver_node,
         ]
     )

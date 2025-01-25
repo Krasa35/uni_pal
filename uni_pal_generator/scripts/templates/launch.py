@@ -6,11 +6,15 @@ from templates import macros
 from uni_pal_pylib.utils import insert_content, indent_content
 import glob
 
-def start_launch(file_path, launch_type, robot_model_, robot_ip_="xxx.xxx.xxx.xxx"):
+def start_launch(file_path, launch_type, robot_model_, robot_specific_, robot_ip_="xxx.xxx.xxx.xxx"):
+  robot_driver_package_ = robot_specific_['driver_package']
+  robot_driver_executable_ = robot_specific_['driver_executable']
   template = Template(macros.launch_templates[launch_type])
   launch_content = template.render(
       robot_model=robot_model_,
       robot_ip=robot_ip_,
+      robot_driver_package=robot_driver_package_,
+      robot_driver_executable=robot_driver_executable_,
   )
   with open(file_path, 'w') as launch_file:
       launch_file.write(launch_content)

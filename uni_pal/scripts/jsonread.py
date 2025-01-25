@@ -93,17 +93,15 @@ class ServiceServer(Node):
             GetPlacePos,
             'read_json_node/get_box_position',
             self.find_box_position)
-        self.get_logger().info('/read_json_node/get_box_position service server has been started.')
         self._service = self.create_service(
             GetPalParams,
             'read_json_node/get_pallet_params',
             self.handle_palletize_parameters)
-        self.get_logger().info('/read_json_node/get_pallet_params service server has been started.')
         self._service = self.create_service(
             GetConfigParams,
             'read_json_node/get_config_params',
             self.handle_config_parameters)
-        self.get_logger().info('/read_json_node/get_config_params service server has been started.')
+        self.get_logger().info('read_json_node node has been started.')
 
     def read_json_file(self, file_path: str) -> JsonData:
         with open(file_path, 'r') as file:

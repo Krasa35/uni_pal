@@ -2,3 +2,4 @@
 ---
 # Result
 uni_pal_msgs/PalParams params
+bool success

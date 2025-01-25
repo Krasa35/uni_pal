@@ -1,0 +1,88 @@
+system: # OPTIONS
+  username: ros2-dev
+  simulation: true
+  launch_type: "mtc_w_physical_connection" # visualize_w_joint_gui / moveit_simulation / mtc_w_physical_connection
+  json_path: "/home/ws/.github/Company_data/RobotConfig/Test_2LAY_EUR_21112024/P_TE_2411211022_1200X800_96.json"
+robot:
+  type: universal_robots # universal_robots / techman_robots
+  model: ur10
+  ip: 192.168.56.100
+  parent: "station"
+  origin_xyz: "0.075 0.0 0.71"
+  origin_rpy: "0.0 0.0 1.57"
+  data:
+    max_reach: 1.3
+    gripper_width: 0.3
+    gripper_length: 0.5
+    gripper_height: 0.1
+    gripper_offset: 0.05
+    frames: ["world", "base", "base_link"]
+    eefs: ["flange", "tool0", "gripper"]
+    flange_name: "flange"
+    arm_group_name: "ur_manipulator"
+    planning_groups: ["manipulator"]
+  joint_limits:
+    joint_1: 
+      max_velocity: no_velocity_limit
+      max_acceleration: 1.0
+scene:
+  pallet_left: # EUPALLET
+    size: "0.784 0.984 1.180" # "0.8/1.02 1.2/1.22 0.144/0.122" US to EUR PALLET
+    mesh: "/home/ws/.github/Company_data/RC10_meshes/Paleta_small.stl"
+    position: "-1.089 -0.65 0.0" # position: "-0.79 -0.1 0.0" - "size/2" for US, compute for EU
+    orientation: "0.0 0.0 0.0"
+    origin_xyz: "0.4 0.6 0.0"
+    parent: "world"
+  pallet_right: # EUPALLET
+    size: "0.784 0.984 1.180" # "0.8/1.02 1.2/1.22 0.144/0.122" US to EUR PALLET
+    mesh: "/home/ws/.github/Company_data/RC10_meshes/Paleta_small.stl"
+    position: "0.289 -0.65 0.0" # position: "-0.79 -0.1 0.0" - "size/2" for US, compute for EU
+    orientation: "0.0 0.0 0.0"
+    origin_xyz: "0.4 0.6 0.0"
+    parent: "world"
+  station:
+    mesh: "/home/ws/.github/Company_data/RC10_meshes/RC10_TG_CZ_NESTLE/base.stl"
+    position: "0.0 0.0 0.0"
+    orientation: "0.0 0.0 -1.57"
+    parent: "world"
+accessories:
+  padding_j3:
+    mesh: "/home/ws/.github/Company_data/RC10_meshes/Padding_RC10_3.stl"
+    position: "-0.6 0.0 0.2"
+    orientation: "0.0 0.0 1.57"
+    parent: "link_2"
+  padding_j4:
+    mesh: "/home/ws/.github/Company_data/RC10_meshes/Padding_RC10_3.stl"
+    position: "-0.033 0.0 0.03"
+    orientation: "0.0 3.14 -1.57"
+    parent: "link_3"
+  padding_j5:
+    mesh: "/home/ws/.github/Company_data/RC10_meshes/Padding_RC10_5.stl"
+    position: "0.0005 0.0 -0.02"
+    orientation: "1.57 0.0 3.14"
+    parent: "link_5"
+  gripper:
+    mesh: "/home/ws/.github/Company_data/RC10_meshes/RC10_TG_CZ_NESTLE/gripper.stl"
+    position: "0.03 0.0 0.0"
+    orientation: "0.0 0.0 3.14"
+    origin_rpy: "0.0 1.57 0.0"
+    parent: "flange"
+srdf:
+  disabled_collisions:
+    base: ["link_1", "link_2", "link_4"]
+    link_1: ["link_2", "link_4", "link_5"]
+    link_2: ["link_3", "padding_j3"]
+    link_3: ["link_4", "padding_j4"]
+    link_4: ["link_5", "padding_j5"]
+    link_5: ["link_6", "padding_j5"]
+    link_6: ["gripper"]
+    station: ["pallet_left", "pallet_right", "base"]
+  group_states:
+    manipulator:
+      safe_position_base_same: ['None', -1.57, 0.0, -1.57, 1.57, 0.0]
+      safe_up: [-1.57, -1.57, 0.0, -1.57, 1.57, 0.0]
+      extended: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+      home: [-1.57, -1.57, -1.57, -1.57, 1.57, 0.0]
+      home_left: [0.0, -1.57, -1.57, -1.57, 1.57, 0.0]
+      home_right: [-3.14, -1.57, -1.57, -1.57, 1.57, 0.0]
+

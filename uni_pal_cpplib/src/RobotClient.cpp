@@ -122,12 +122,14 @@ geometry_msgs::msg::TransformStamped RobotClient::lookup_transform_(const std::s
 void RobotClient::update_robot_static_info_(std::shared_ptr<uni_pal_msgs::srv::Empty::Request>,
                                             std::shared_ptr<uni_pal_msgs::srv::Empty::Response>)
 {
+  RCLCPP_INFO(this->get_logger(), "Handling /robot_client/update_robot_static_info service request...");
   got_robot_static_info_ = false;
   got_config_params_ = false;
 }
 void RobotClient::set_frame_(std::shared_ptr<uni_pal_msgs::srv::SetFrame::Request> request,
                              std::shared_ptr<uni_pal_msgs::srv::SetFrame::Response> response)
 {
+  RCLCPP_INFO(this->get_logger(), "Handling /robot_client/set_frame service request...");
   auto found = std::find(static_message_.predefined.frame_keys.begin(), 
                static_message_.predefined.frame_keys.end(), 
                request->frame);
@@ -153,6 +155,7 @@ void RobotClient::set_frame_(std::shared_ptr<uni_pal_msgs::srv::SetFrame::Reques
 void RobotClient::set_tcp_(std::shared_ptr<uni_pal_msgs::srv::SetFrame::Request> request,
                            std::shared_ptr<uni_pal_msgs::srv::SetFrame::Response> response)
 {
+  RCLCPP_INFO(this->get_logger(), "Handling /robot_client/set_tcp service request...");
   auto found = std::find(static_message_.predefined.tcp_keys.begin(), 
                static_message_.predefined.tcp_keys.end(), 
                request->frame);

@@ -51,10 +51,12 @@ moveit::task_constructor::Task TaskClient::create_place_task_()
   cartesian_planner->setMaxVelocityScalingFactor(1.0);
   cartesian_planner->setMaxAccelerationScalingFactor(1.0);
   cartesian_planner->setStepSize(.01);
-  cartesian_planner->setMinFraction(.05);
+  cartesian_planner->setMinFraction(.85);
 
   std::string box_id = "box " + std::to_string(counters_message_.total_boxes_placed);
 
+  float threshold = pallet_params_message_.box.height/2000+pallet_params_message_.pallet.height/1000;
+  float approach_dist = 0.1;
   // current state
   {
     auto stage_state_current = std::make_unique<moveit::task_constructor::stages::CurrentState>("current state");
@@ -93,8 +95,9 @@ moveit::task_constructor::Task TaskClient::create_place_task_()
     before_place.header.stamp = node->now();
     before_place.header.frame_id = "pallet_left";
     before_place.pose = place_pose_.place_pose;
-    before_place.pose.position.z += 0.1;
+    before_place.pose.position.z += threshold + approach_dist;
     // before_place.pose.position.x += 0.1 * cos(pallet_box_info_.approach_angle);
+    RCLCPP_INFO(this->get_logger(), "Moving to position:\n\tx: %f\n\ty: %f", before_place.pose.position.x, before_place.pose.position.y);
 
     stage->setIKFrame(hand_group_name);
     stage->setGoal(before_place);
@@ -111,7 +114,7 @@ moveit::task_constructor::Task TaskClient::create_place_task_()
     // stage->setMinMaxDistance(approach_object_min_dist, approach_object_max_dist);
     geometry_msgs::msg::Vector3Stamped vec;
     vec.header.frame_id = "world";
-    vec.vector.z = -0.1;
+    vec.vector.z = -approach_dist;
     stage->setDirection(vec);
     stage->setTimeout(10.0);
     task.add(std::move(stage));
@@ -132,7 +135,7 @@ moveit::task_constructor::Task TaskClient::create_place_task_()
     // stage->setMinMaxDistance(approach_object_min_dist, approach_object_max_dist);
     geometry_msgs::msg::Vector3Stamped vec;
     vec.header.frame_id = "world";
-    vec.vector.z = 0.1;
+    vec.vector.z = approach_dist;
     stage->setDirection(vec);
     stage->setTimeout(10.0);
     task.add(std::move(stage));

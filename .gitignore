@@ -5,5 +5,6 @@ _cache/log/*
 !_cache/install/.gitkeep
 !_cache/log/.gitkeep
 uni_pal_description/meshes/*
+uni_pal_description/config/robot_config.json
 !uni_pal_description/meshes/.gitkeep
 build

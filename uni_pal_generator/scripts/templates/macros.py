@@ -80,9 +80,9 @@ techman_robots = {
 
 """,
     'links': {
-        'base_link': 'base_link',
+        # 'base_link': 'base_link',
+        'base_link': 'link_0',
         'base': 'link_0',
-        'base_2': 'link_0',
         'link_1': 'link_1',
         'link_2': 'link_2',
         'link_3': 'link_3',
@@ -98,7 +98,10 @@ techman_robots = {
         'joint_4': 'joint_4',
         'joint_5': 'joint_5',
         'joint_6': 'joint_6',
-    }
+    },
+    'driver_package': 'tm_driver',
+    'driver_executable': 'tm_driver',
+
 }
 
 universal_robots = {
@@ -227,7 +230,9 @@ trajectory_execution:
 moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
 
 moveit_simple_controller_manager: 
-"""
+""",
+    'driver_package': 'ur_robot_driver',
+    'driver_executable': 'ur_ros2_control_node',
 }
 
 joint_limits_template = """
@@ -416,12 +421,19 @@ def generate_launch_description():
         output='both',
         parameters=[moveit_config.robot_description]
     )
+    
+    robot_driver_node = Node(
+        package='{{ robot_driver_package }}',
+        executable='{{ robot_driver_executable }}',
+        output='screen',
+    )
 
     return LaunchDescription(
         [
             rviz_node,
             robot_state_publisher,
             run_move_group_node,
+            robot_driver_node,
         ]
     )
 """,

@@ -61,6 +61,7 @@ class TaskClient : public rclcpp::Node
     void get_place_pose_sent_service(rclcpp::Client<uni_pal_msgs::srv::GetPlacePos>::SharedFuture future);
     rclcpp::Client<uni_pal_msgs::srv::GetPlacePos>::SharedPtr get_place_pose_client_;
     uni_pal_msgs::srv::GetPlacePos::Response place_pose_;
+    bool got_place_pose_;
     // MoveIt Task Constructor
     bool do_task_(RobotMovement);
     moveit::task_constructor::Task create_demo_task_();

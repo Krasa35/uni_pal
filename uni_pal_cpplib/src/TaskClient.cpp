@@ -16,6 +16,7 @@ TaskClient::TaskClient(const rclcpp::NodeOptions &options) : Node("task_client",
       "/task_client/execute_task", std::bind(&TaskClient::execute_task_, this, std::placeholders::_1, std::placeholders::_2));
   // Service clients
   get_place_pose_client_ = this->create_client<uni_pal_msgs::srv::GetPlacePos>("/read_json_node/get_box_position");
+  got_place_pose_ = false;
 }
 
 // Subscribers
@@ -36,6 +37,15 @@ void TaskClient::pallet_params_subscriber_callback_(const uni_pal_msgs::msg::Pal
 
 void TaskClient::counters_subscriber_callback_(const uni_pal_msgs::msg::Counters &msg)
 {
+  if (msg != counters_message_)
+  {
+    uni_pal_msgs::srv::GetPlacePos::Request request;
+    request.layer_no = counters_message_.left_pallet.layers_placed + 1;
+    request.box_no = counters_message_.left_pallet.boxes_on_current_layer; // because it is in array and increments on creation
+    request.pallet_side = "LEFT";
+    RCLCPP_INFO(this->get_logger(), "Requesting place pose for layer %d, box %d on %s pallet", request.layer_no, request.box_no, request.pallet_side.c_str());
+    get_place_pose_(request);
+  }
   counters_message_ = msg;
 }
 
@@ -43,6 +53,7 @@ void TaskClient::counters_subscriber_callback_(const uni_pal_msgs::msg::Counters
 void TaskClient::execute_task_(std::shared_ptr<uni_pal_msgs::srv::ExecuteTask::Request> request,
                                std::shared_ptr<uni_pal_msgs::srv::ExecuteTask::Response> response)
 {
+  RCLCPP_INFO(this->get_logger(), "Handling /task_client/execute_task request... Received request to execute task %d", request->task_nr);
   RobotMovement move = toRobotMovement(request->task_nr);
   response->success = do_task_(move);
 }
@@ -50,7 +61,7 @@ void TaskClient::execute_task_(std::shared_ptr<uni_pal_msgs::srv::ExecuteTask::R
 // Service Clients
 void TaskClient::get_place_pose_(uni_pal_msgs::srv::GetPlacePos::Request request)
 {
-  RCLCPP_INFO(this->get_logger(), "Waiting for service '/read_json_node/get_box_position'");
+  got_place_pose_ = false;
   if (!get_place_pose_client_->wait_for_service(std::chrono::seconds(1)))
   {
     if (rclcpp::ok())
@@ -63,30 +74,29 @@ void TaskClient::get_place_pose_(uni_pal_msgs::srv::GetPlacePos::Request request
     RCLCPP_INFO(this->get_logger(),
                 "Service Unavailable. Waiting for Service...");
   }
-  RCLCPP_INFO(this->get_logger(), "Service available. Sending request...");
-  std::shared_ptr<uni_pal_msgs::srv::GetPlacePos::Request> request_to_send = std::make_shared<uni_pal_msgs::srv::GetPlacePos::Request>();
+  auto request_to_send = std::make_shared<uni_pal_msgs::srv::GetPlacePos::Request>();
   request_to_send->layer_no = request.layer_no;
   request_to_send->box_no = request.box_no;
-  request_to_send->pallet_side = request.pallet_side.c_str();
-  RCLCPP_INFO(this->get_logger(), "Requesting place pose for layer %d, box %d on %s pallet", request_to_send->layer_no, request_to_send->box_no, request_to_send->pallet_side.c_str());
+  request_to_send->pallet_side = request.pallet_side;
+  RCLCPP_INFO(this->get_logger(), "request completed, sending....");
   auto result_future = get_place_pose_client_->async_send_request(
-      request_to_send, std::bind(&TaskClient::get_place_pose_sent_service, this,
-                         std::placeholders::_1));
+      request_to_send, std::bind(&TaskClient::get_place_pose_sent_service, this, std::placeholders::_1));
 }
 
 void TaskClient::get_place_pose_sent_service(rclcpp::Client<uni_pal_msgs::srv::GetPlacePos>::SharedFuture future)
 {
-  auto status = future.wait_for(std::chrono::seconds(1));
+  auto status = future.wait_for(std::chrono::seconds(2));
   if (status == std::future_status::ready)
   {
-    uni_pal_msgs::srv::GetPlacePos_Response_ response = *(future.get());
-    place_pose_.place_pose.position.x = response.place_pose.position.x / 1000;
-    place_pose_.place_pose.position.y = response.place_pose.position.y / 1000;
-    place_pose_.place_pose.position.z = (counters_message_.left_pallet.layers_placed + 1) * pallet_params_message_.box.height / 1000 + pallet_params_message_.pallet.height / 1000;
+    auto response = future.get();
     tf2::Quaternion q;
-    q.setRPY(M_PI, 0, place_pose_.place_pose.position.z);
+    q.setRPY(M_PI, 0, response->place_pose.position.z * M_PI / 180);
     place_pose_.place_pose.orientation = tf2::toMsg(q);
+    place_pose_.place_pose.position.x = response->place_pose.position.y / 1000;
+    place_pose_.place_pose.position.y = response->place_pose.position.x / 1000;
+    place_pose_.place_pose.position.z = (counters_message_.left_pallet.layers_placed + 1) * pallet_params_message_.box.height / 1000 + pallet_params_message_.pallet.height / 1000;
     RCLCPP_INFO(this->get_logger(), "Parameters Received from \"/read_json_node/get_box_position\".");
+    got_place_pose_ = true;
   }
   else
   {
@@ -101,8 +111,17 @@ bool TaskClient::do_task_(RobotMovement task_nr)
   {
     RCLCPP_ERROR(this->get_logger(), "Robot info not available");
     return false;
+    
   }
-  uni_pal_msgs::srv::GetPlacePos::Request request;
+  // if (task_nr == RobotMovement::Place)
+  // {
+  //   // while (!got_place_pose_ || (place_pose_.place_pose.position.x == 0 && place_pose_.place_pose.position.y == 0 ))
+  //   // {
+
+  //     rclcpp::sleep_for(std::chrono::seconds(5));
+  //   // }
+  // }
+
   switch (task_nr)
   {
   case RobotMovement::Homing: // 0
@@ -115,11 +134,6 @@ bool TaskClient::do_task_(RobotMovement task_nr)
     task_ = create_pick_task_();
     break;
   case RobotMovement::Place: // 200
-    request.layer_no = counters_message_.left_pallet.layers_placed + 1;
-    request.box_no = counters_message_.left_pallet.boxes_on_current_layer; // no +1 because it is in array
-    request.pallet_side = "LEFT";
-    RCLCPP_INFO(this->get_logger(), "Requesting place pose for layer %d, box %d on %s pallet", request.layer_no, request.box_no, request.pallet_side.c_str());
-    get_place_pose_(request);
     task_ = create_place_task_();
     break;
   case RobotMovement::Demo: // 999

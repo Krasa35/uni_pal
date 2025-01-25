@@ -3,3 +3,4 @@ string side
 string action
 ---
 # Result
+bool success

@@ -2,3 +2,4 @@
 geometry_msgs/TransformStamped[] transforms
 ---
 # Result
+bool success

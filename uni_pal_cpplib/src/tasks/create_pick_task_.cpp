@@ -61,6 +61,12 @@ moveit::task_constructor::Task TaskClient::create_pick_task_()
                            task.getRobotModel()
                                ->getLinkModelNamesWithCollisionGeometry(),
                            true);
+    for (size_t i = 0; i < counters_message_.total_boxes_placed; i++)
+    {
+      std::string box_id_prev = "box " + std::to_string(i);
+      stage->allowCollisions(box_id, box_id_prev, true);
+    }
+    
     task.add(std::move(stage));
   }
 

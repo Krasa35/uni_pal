@@ -51,7 +51,7 @@ print(f"URDF file generated at {main_urdf_file_path}")
 
 # launch file generation
 urdf.delete_old_files(config_dir, os.path.join(config_dir, '.ignore'))
-launch.start_launch(launch_file_path, system['launch_type'], robot['model'], robot['ip'])
+launch.start_launch(launch_file_path, system['launch_type'], robot['model'], robot['specific'], robot['ip'])
 launch.copy_config(uni_pal_description_dir, robot['type'], robot['model'], robot['data']['arm_group_name'])
 joint_limits.start_joint_limits(os.path.join(config_dir, 'joint_limits.yaml'), robot['specific'], robot['joint_limits'])
 kinematics.start_kinematics(os.path.join(config_dir, 'kinematics.yaml'), robot['data']['arm_group_name'])

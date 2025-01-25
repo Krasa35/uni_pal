@@ -49,6 +49,10 @@ void SceneClient::publish_messages_()
     uni_pal_msgs::msg::PalParams msg = pal_params_response_.params;
     pal_params_publisher_->publish(msg);
   }
+  else
+  {
+    get_pal_params_(nullptr, nullptr);
+  }
 
   if (published_transforms_.size() > 0)
   {
@@ -57,6 +61,10 @@ void SceneClient::publish_messages_()
       transform.header.stamp = this->now();
       tf_broadcaster_->sendTransform(transform);
     }
+  }
+  else
+  {
+    if (!static_message_.config.link_names.empty()) init_pickpoint_();
   }
 
   counters_publisher_->publish(counters_msg_);
@@ -69,8 +77,9 @@ void SceneClient::static_message_subscriber_callback_(const uni_pal_msgs::msg::R
 }
 // Service Servers
 void SceneClient::get_pal_params_(std::shared_ptr<uni_pal_msgs::srv::Empty::Request>,
-                                  std::shared_ptr<uni_pal_msgs::srv::Empty::Response>)
+                                  std::shared_ptr<uni_pal_msgs::srv::Empty::Response> response)
 {
+  RCLCPP_INFO(this->get_logger(), "Handling /scene_client/get_pal_params service request...");
   if (!pal_params_client_->wait_for_service(std::chrono::seconds(1)))
   {
     if (rclcpp::ok())
@@ -88,24 +97,30 @@ void SceneClient::get_pal_params_(std::shared_ptr<uni_pal_msgs::srv::Empty::Requ
   auto result_future = pal_params_client_->async_send_request(
       request, std::bind(&SceneClient::pal_params_sent_service_, this,
                          std::placeholders::_1));
+  result_future.wait();
+  // response->success = true;
 }
 
 void SceneClient::get_published_transforms_(std::shared_ptr<uni_pal_msgs::srv::GetPublishedTransforms::Request>,
                                             std::shared_ptr<uni_pal_msgs::srv::GetPublishedTransforms::Response> response)
 {
+  RCLCPP_INFO(this->get_logger(), "Handling /scene_client/get_published_transforms service request...");
   response->transforms = published_transforms_;
+  response->success = true;
 }
 
 void SceneClient::set_published_transforms_(std::shared_ptr<uni_pal_msgs::srv::SetPublishedTransforms::Request> request,
-                                            std::shared_ptr<uni_pal_msgs::srv::SetPublishedTransforms::Response>)
+                                            std::shared_ptr<uni_pal_msgs::srv::SetPublishedTransforms::Response> response)
 {
+  RCLCPP_INFO(this->get_logger(), "Handling /scene_client/set_published_transforms service request...");
   published_transforms_ = request->transforms;
+  response->success = true;
 }
 
 void SceneClient::create_box_on_pp_(std::shared_ptr<uni_pal_msgs::srv::Empty::Request>,
-                                    std::shared_ptr<uni_pal_msgs::srv::Empty::Response>)
+                                    std::shared_ptr<uni_pal_msgs::srv::Empty::Response> response)
 {
-  init_pickpoint_();
+  RCLCPP_INFO(this->get_logger(), "Handling /scene_client/create_box_on_pp service request...");
   rclcpp::Rate rate(0.1); // 1/10 Hz
   while (!got_pal_params_)
   {
@@ -174,17 +189,19 @@ void SceneClient::create_box_on_pp_(std::shared_ptr<uni_pal_msgs::srv::Empty::Re
 
   box.object.operation = box.object.ADD;
   box.touch_links = std::vector<std::string>{"gripper"};
-
-  collision_objects_.push_back(box);
+  // collision_objects_.clear();
+  // collision_objects_.push_back(box);
+  planning_scene_.world.collision_objects.clear();
   planning_scene_.world.collision_objects.push_back(box.object);
   planning_scene_.is_diff = true;
   planning_scene_diff_publisher_->publish(planning_scene_);
   RCLCPP_INFO(this->get_logger(), "Box added to pickpoint");
   increment_counters_();
+  response->success = true;
 }
 
 void SceneClient::set_pallet_side_(std::shared_ptr<uni_pal_msgs::srv::SetPalletSide::Request> request,
-                                   std::shared_ptr<uni_pal_msgs::srv::SetPalletSide::Response>)
+                                   std::shared_ptr<uni_pal_msgs::srv::SetPalletSide::Response> responce)
 {
   std::regex set_pattern(R"((set)_layer_(\d+)_box_(\d+))", std::regex_constants::icase);
   std::smatch match;
@@ -193,6 +210,7 @@ void SceneClient::set_pallet_side_(std::shared_ptr<uni_pal_msgs::srv::SetPalletS
   if (request->side != "left" && request->side != "right")
   {
     RCLCPP_ERROR(this->get_logger(), "Invalid side. Must be either 'left' or 'right'");
+    responce->success = false;
     return;
   }
   cnt = (request->side == "right") ? &counters_msg_.right_pallet : &counters_msg_.left_pallet;
@@ -206,6 +224,7 @@ void SceneClient::set_pallet_side_(std::shared_ptr<uni_pal_msgs::srv::SetPalletS
   }
   else if (std::regex_search(request->action, match, set_pattern))
   {
+    counters_msg_.total_boxes_placed = std::stoi(match[3]) + std::stoi(match[2]) * pal_params_response_.params.boxes_per_layer;
     cnt->pallet_state = "IN_PROGRESS";
     cnt->layers_placed = std::stoi(match[2]);
     cnt->boxes_on_current_layer = std::stoi(match[3]);
@@ -214,8 +233,10 @@ void SceneClient::set_pallet_side_(std::shared_ptr<uni_pal_msgs::srv::SetPalletS
   else  
   {
     RCLCPP_ERROR(this->get_logger(), "Invalid action. Must be either 'reset' or 'set_layer_<layer_nr>_box_<box_nr>'");
+    responce->success = false;
     return;
   }
+  responce->success = true;
 }
 
 // Service Clients
@@ -226,6 +247,7 @@ void SceneClient::pal_params_sent_service_(rclcpp::Client<uni_pal_msgs::srv::Get
   {
     pal_params_response_ = *(future.get());
     got_pal_params_ = true;
+    RCLCPP_INFO(this->get_logger(), "Received pallet parameters");
   }
 }
 
@@ -263,16 +285,13 @@ void SceneClient::init_pickpoint_()
   temp.pose.position.z = 0.868602;
   frame_points_[2] = geometry_msgs::msg::PoseStamped(temp);
   published_transforms_.push_back(computeConveyorFrame());
+  RCLCPP_INFO(this->get_logger(), "pickpoint frame published");
 
   t.header.frame_id = static_message_.config.link_names.back();
-  RCLCPP_INFO(this->get_logger(), "Pickpoint frame: %s", t.header.frame_id.c_str());
   t.child_frame_id = "gripper_pads";
-  auto found = std::find(static_message_.predefined.tcp_keys.begin(), static_message_.predefined.tcp_keys.end(), "gripper");
-  std::size_t index = std::distance(static_message_.predefined.tcp_keys.begin(), found);
-  RCLCPP_INFO(this->get_logger(), "Gripper index: %ld", index);
   t.transform.translation.z = 0.1;
-  RCLCPP_INFO(this->get_logger(), "Gripper pads frame: %s", t.child_frame_id.c_str());
   published_transforms_.push_back(t);
+  RCLCPP_INFO(this->get_logger(), "gripper_pads frame published");
 }
 
 geometry_msgs::msg::TransformStamped SceneClient::computeConveyorFrame()
